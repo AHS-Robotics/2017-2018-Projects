@@ -47,12 +47,24 @@ public class BaseModule extends LinearOpModePlus{
             if(gamepad1.dpad_left) decPower();
             if(gamepad1.dpad_right) incPower();
 
-            if(lYAxis == 1.0 || lYAxis == -1.0) {
+            if(lYAxis <= 1.0 || lYAxis >= -1.0 && lXAxis == 0.0) {
+                // moving forward or backward
                 motorLeftBack.setPower(-gamepad1.left_stick_y * multiplier);
                 motorLeftFront.setPower(-gamepad1.left_stick_y * multiplier);
                 motorRightBack.setPower(-gamepad1.left_stick_y * multiplier);
                 motorRightFront.setPower(-gamepad1.left_stick_y * multiplier);
-            }else{}
+            }else if(lXAxis >= -1.0 && lXAxis < 0 && lYAxis == 0){
+                // moving left
+                motorLeftFront.setPower(-gamepad1.left_stick_x);
+                motorRightBack.setPower(-gamepad1.left_stick_x);
+            }else if(lXAxis <= 1.0 && lXAxis > 0 && lYAxis == 0){
+                // moving right
+                motorLeftBack.setPower(-gamepad1.left_stick_x);
+                motorRightFront.setPower(-gamepad1.left_stick_x);
+            }else{
+                // moving diagonally
+                
+            }
 
             idle();
         }
