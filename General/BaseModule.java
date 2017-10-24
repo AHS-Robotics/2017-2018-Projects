@@ -24,19 +24,10 @@ public class BaseModule extends LinearOpModePlus{
     private boolean testDiagonal = true;
     private boolean updateTele = true;
 
-    public void update(boolean confirm){
-        if(confirm){
-            clear(true);
-            output += "SPEED CAP: " + multiplier + "\nMLB: " + motorLeftBack + "\nMLF: " + motorLeftFront
-                    + "\nMRB: " + motorRightBack + "\nMRF: " + motorRightFront
-                    + "\nLYAXIS: " + lYAxis + "\nLXAXIS: " + lXAxis;
-            refreshTelemetry();
-        }
-        
+    public void update(){
         // This always has to run
         lYAxis = gamepad1.left_stick_y;
-        lXAxis = gamepad1.left_stick_x;
-        
+        lXAxis = gamepad1.left_stick_y;
     }
     
     public void runDiagonal(Diagonal d){
@@ -48,8 +39,16 @@ public class BaseModule extends LinearOpModePlus{
                 motorRightBack.setPower(-gamepad1.left_stick_y * multiplier);
                 break;
             case Diagonal.LEFT_BACK:
+                motorLeftFront.setPower(-gamepad1.left_stick_x * multiplier);
+                motorRightBack.setPower(-gamepad1.left_stick_x * multiplier);
+                motorLeftBack.setPower(-gamepad1.left_stick_y * multiplier);
+                motorRightFront.setPower(-gamepad1.left
                 break;
             case Diagonal.RIGHT_FWRD:
+                motorLeftFront.setPower(-gamepad1.left_stick_x * multiplier);
+                motorRightBack.setPower(-gamepad1.left_stick_x * multiplier);
+                motorLeftBack.setPower(-gamepad1.left_stick_y * multiplier);
+                motorRightFront.setPower(-gamepad1.left_stick_y * multiplier);
                 break;
             case Diagonal.RIGHT_BACK:
                 break;
@@ -70,7 +69,7 @@ public class BaseModule extends LinearOpModePlus{
         waitForStart();
 
         while(opModeIsActive()){
-            update(updateTele);
+            update();
 
             // changing some variables
             if(gamepad1.dpad_left) decPower();
@@ -89,23 +88,15 @@ public class BaseModule extends LinearOpModePlus{
             }else if(lXAxis <= 1.0 && lXAxis > 0 && lYAxis == 0){
                 // moving right
                 motorLeftBack.setPower(-gamepad1.left_stick_x * multiplier);
-                motorRightFront.setPower(-gamepad1.left_stick_x * multiplier);
-    
+                motorRightFront.setPower(-gamepad1.left_stick_x * multiplier)
             }else{
                 if(lXAxis > lYAxis && lYAxis > 0 && testDiagonal) runDiagonal(Diagonal.RIGHT_FWRD);
                 else if(lXAxis < 0 && lYAxis > 0 && testDiagonal) runDiagonal(Diagonal.LEFT_FWRD);
                 else if(lXAxis > 0 && lYAxis < 0 && testDiagonal) runDiagonal(Diagonal.RIGHT_BACK);
-                else if(lxAxis < 0 && lYAxis > 0 && testDiagonal) runDiagonal(Diagonal.LEFT_BACK);
-                else
-                    
-                
-                
+                else if(lXAxis < 0 && lYAxis > 0 && testDiagonal) runDiagonal(Diagonal.LEFT_BACK);
+                else // here we'll print a message to the driver theres a bad diagonal   
             }
 
             idle();
-        
-
-    }
-       
-
+        }
 }
