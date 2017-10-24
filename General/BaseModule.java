@@ -21,27 +21,38 @@ public class BaseModule extends LinearOpModePlus{
     private DcMotor motorRightBack;
     private DcMotor motorRightFront;
     
-    private boolean testDiagonal;
+    private boolean testDiagonal = true;
+    private boolean updateTele = true;
 
-    public void update(){
-        clear(true);
-        output += "SPEED CAP: " + multiplier + "\nMLB: " + motorLeftBack + "\nMLF: " + motorLeftFront
-                + "\nMRB: " + motorRightBack + "\nMRF: " + motorRightFront
-                + "\nLYAXIS: " + lYAxis + "\nLXAXIS: " + lXAxis;
-        refreshTelemetry();
+    public void update(boolean confirm){
+        if(confirm){
+            clear(true);
+            output += "SPEED CAP: " + multiplier + "\nMLB: " + motorLeftBack + "\nMLF: " + motorLeftFront
+                    + "\nMRB: " + motorRightBack + "\nMRF: " + motorRightFront
+                    + "\nLYAXIS: " + lYAxis + "\nLXAXIS: " + lXAxis;
+            refreshTelemetry();
+        }
+        
+        // This always has to run
         lYAxis = gamepad1.left_stick_y;
         lXAxis = gamepad1.left_stick_x;
+        
     }
     
     public void runDiagonal(Diagonal d){
         switch(d){
             case Diagonal.LEFT_FWRD:
+                motorLeftBack.setPower(-gamepad1.left_stick_x * multiplier);
+                motorRightFront.setPower(-gamepad1.left_stick_x * multiplier);
+                motorLeftFront.setPower(-gamepad1.left_stick_y * multiplier);
+                motorRightBack.setPower(-gamepad1.left_stick_y * multiplier);
                 break;
             case Diagonal.LEFT_BACK:
                 break;
             case Diagonal.RIGHT_FWRD:
                 break;
-            
+            case Diagonal.RIGHT_BACK:
+                break;
         }
     }
 
@@ -59,7 +70,7 @@ public class BaseModule extends LinearOpModePlus{
         waitForStart();
 
         while(opModeIsActive()){
-            update();
+            update(updateTele);
 
             // changing some variables
             if(gamepad1.dpad_left) decPower();
@@ -73,13 +84,21 @@ public class BaseModule extends LinearOpModePlus{
                 motorRightFront.setPower(-gamepad1.left_stick_y * multiplier);
             }else if(lXAxis >= -1.0 && lXAxis < 0 && lYAxis == 0){
                 // moving left
-                motorLeftFront.setPower(-gamepad1.left_stick_x);
-                motorRightBack.setPower(-gamepad1.left_stick_x);
+                motorLeftFront.setPower(-gamepad1.left_stick_x * multiplier);
+                motorRightBack.setPower(-gamepad1.left_stick_x * multiplier);
             }else if(lXAxis <= 1.0 && lXAxis > 0 && lYAxis == 0){
                 // moving right
-                motorLeftBack.setPower(-gamepad1.left_stick_x);
-                motorRightFront.setPower(-gamepad1.left_stick_x);
+                motorLeftBack.setPower(-gamepad1.left_stick_x * multiplier);
+                motorRightFront.setPower(-gamepad1.left_stick_x * multiplier);
+    
             }else{
+                if(lXAxis > lYAxis && lYAxis > 0 && testDiagonal) runDiagonal(Diagonal.RIGHT_FWRD);
+                else if(lXAxis < 0 && lYAxis > 0 && testDiagonal) runDiagonal(Diagonal.LEFT_FWRD);
+                else if(lXAxis > 0 && lYAxis < 0 && testDiagonal) runDiagonal(Diagonal.RIGHT_BACK);
+                else if(lxAxis < 0 && lYAxis > 0 && testDiagonal) runDiagonal(Diagonal.LEFT_BACK);
+                else
+                    
+                
                 
             }
 
@@ -87,5 +106,6 @@ public class BaseModule extends LinearOpModePlus{
         
 
     }
+       
 
 }
