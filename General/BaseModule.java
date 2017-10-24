@@ -63,7 +63,15 @@ public class BaseModule extends LinearOpModePlus{
                 motorRightFront.setPower(-gamepad1.left_stick_x);
             }else{
                 // moving diagonally
-                
+                if(lXAxis > lYAxis){
+                    // Should do a diagonal right
+                    motorLeftBack.setPower(-gamepad.left_stick_x * multiplier);
+                    motorRigtFront.setPower(-gamepad.left_stick_x * multiplier);
+                    motorLeftFront.setPower(-gamepad1.left_stick_y * multiplier);
+                    motorRightBack.setPower(-gamepad1.left_stick_y * multiplier);
+                    output += "Moving RD";
+                    print(output);
+                }
             }
 
             idle();
