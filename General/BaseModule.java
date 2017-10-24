@@ -6,6 +6,10 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.LinearOpModePlus;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+enum Diagonal{
+    RIGHT_FWRD, RIGHT_BACK, LEFT_FWRD, LEFT_BACK
+}
+
 @TeleOp(name="Base Module 1.0.0", group="Building Blocks")
 public class BaseModule extends LinearOpModePlus{
     private double power = 0;
@@ -16,6 +20,8 @@ public class BaseModule extends LinearOpModePlus{
     private DcMotor motorLeftFront;
     private DcMotor motorRightBack;
     private DcMotor motorRightFront;
+    
+    private boolean testDiagonal;
 
     public void update(){
         clear(true);
@@ -25,6 +31,18 @@ public class BaseModule extends LinearOpModePlus{
         refreshTelemetry();
         lYAxis = gamepad1.left_stick_y;
         lXAxis = gamepad1.left_stick_x;
+    }
+    
+    public void runDiagonal(Diagonal d){
+        switch(d){
+            case Diagonal.LEFT_FWRD:
+                break;
+            case Diagonal.LEFT_BACK:
+                break;
+            case Diagonal.RIGHT_FWRD:
+                break;
+            
+        }
     }
 
     @Override
@@ -62,20 +80,11 @@ public class BaseModule extends LinearOpModePlus{
                 motorLeftBack.setPower(-gamepad1.left_stick_x);
                 motorRightFront.setPower(-gamepad1.left_stick_x);
             }else{
-                // moving diagonally
-                if(lXAxis > lYAxis){
-                    // Should do a diagonal right
-                    motorLeftBack.setPower(-gamepad.left_stick_x * multiplier);
-                    motorRigtFront.setPower(-gamepad.left_stick_x * multiplier);
-                    motorLeftFront.setPower(-gamepad1.left_stick_y * multiplier);
-                    motorRightBack.setPower(-gamepad1.left_stick_y * multiplier);
-                    output += "Moving RD";
-                    print(output);
-                }
+                
             }
 
             idle();
-        }
+        
 
     }
 
