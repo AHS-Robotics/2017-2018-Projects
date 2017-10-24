@@ -12,6 +12,7 @@ enum Diagonal{
 
 @TeleOp(name="Base Module 1.0.0", group="Building Blocks")
 public class BaseModule extends LinearOpModePlus{
+    private final double SLEEP_TIME = 1000;
     private double power = 0;
     private double lXAxis, lYAxis;
     private double rXAxis, rYAxis;
@@ -23,7 +24,21 @@ public class BaseModule extends LinearOpModePlus{
     
     private boolean testDiagonal = true;
     private boolean updateTele = true;
-
+    
+    // all of the 'turnX' methods will be defined later
+    public void turnLeft(){
+        try{
+            motorLeftFront.setPower(MAX_CAP * multiplier);
+            motorLeftBack.setPower(MAX_CAP * multiplier);
+            Thread.sleep(SLEEP_TIME);
+            motorLeftFront.setPower(0);
+            motorLeftBack.setPower(0);
+            
+        }catch(InterruptedException e){
+            // we'll do something here but not now
+        }
+    }
+    
     public void update(){
         // This always has to run
         lYAxis = gamepad1.left_stick_y;
@@ -51,6 +66,13 @@ public class BaseModule extends LinearOpModePlus{
                 motorRightFront.setPower(-gamepad1.left_stick_y * multiplier);
                 break;
             case Diagonal.RIGHT_BACK:
+                motorLeftBack.setPower(-gamepad1.left_stick_x * multiplier);
+                motorRightFront.setPower(-gamepad1.left_stick_x * multiplier);
+                motorLeftFront.setPower(-gamepad1.left_stick_y * multiplier);
+                motorRightBack.setPower(-gamepad.left_stick_y * multiplier);
+                break;
+            default:
+                // we'll print an error message
                 break;
         }
     }
@@ -74,6 +96,7 @@ public class BaseModule extends LinearOpModePlus{
             // changing some variables
             if(gamepad1.dpad_left) decPower();
             if(gamepad1.dpad_right) incPower();
+            if(gamepad.a) turnLeft();
 
             if(lYAxis <= 1.0 || lYAxis >= -1.0 && lXAxis == 0.0) {
                 // moving forward or backward
