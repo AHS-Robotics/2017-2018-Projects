@@ -6,7 +6,13 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.LinearOpModePlus;
 
-public class BaseModule extends LinearOpModePlus{
+enum Diagonal{
+    LEFT_FWD, LEFT_BCK, RIGHT_FWD, RIGHT_BCK, STOP
+    // if stop is used that means all motor powers should be set to 0
+}
+
+@TeleOp(name="Base Module b2.0.0", group="Building Block")
+public class BaseModule extends LinearOpModePlus {
     private DcMotor motorLeftFront;
     private DcMotor motorLeftBack;
     private DcMotor motorRightFront;
@@ -20,17 +26,18 @@ public class BaseModule extends LinearOpModePlus{
 
 
     /**
-     * At the start of every run, variable information will be updated */
-    public void update(){
+     * At the start of every run, variable information will be updated
+     */
+    public void update() {
         lYAxis = gamepad1.left_stick_y;
         lXAxis = gamepad1.left_stick_x;
 
-        if(leftRev){
+        if (leftRev) {
             motorLeftBack.setDirection(DcMotorSimple.Direction.REVERSE);
             motorLeftFront.setDirection(DcMotorSimple.Direction.REVERSE);
             motorRightBack.setDirection(DcMotorSimple.Direction.FORWARD);
             motorRightFront.setDirection(DcMotorSimple.Direction.FORWARD);
-        }else{
+        } else {
             motorLeftBack.setDirection(DcMotorSimple.Direction.FORWARD);
             motorLeftFront.setDirection(DcMotorSimple.Direction.FORWARD);
             motorRightBack.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -38,50 +45,52 @@ public class BaseModule extends LinearOpModePlus{
         }
 
         // This is experimental so tests are needed
-        if(suspendAllMotors && multiplierStorage <= 0) {
+        if (suspendAllMotors && multiplierStorage <= 0) {
             multiplierStorage = multiplier;
             multiplier = 0;
-        }else if(!suspendAllMotors && multiplierStorage > 0){
+        } else if (!suspendAllMotors && multiplierStorage > 0) {
             multiplier = multiplierStorage;
             multiplierStorage = 0;
         }
 
     }
 
-    private void turn(char dir){
-        if((dir != 'L' || dir != 'l') || (dir != 'R' || dir != 'r') )return; // here we need to print an error but that has to wait until we print functions work better
-        else{
+    private void turn(char dir) {
+        if ((dir != 'L' || dir != 'l') || (dir != 'R' || dir != 'r'))
+            return; // here we need to print an error but that has to wait until we print functions work better
+        else {
             dir = Character.toUpperCase(dir);
             DcMotor motorsWithChange[] = new DcMotor[2]; // this are the ones we'll have to reverse
             DcMotorSimple.Direction rev, fwd;
 
-            if(dir == 'L') {
+            if (dir == 'L') {
                 motorsWithChange[0] = motorLeftBack;
                 motorsWithChange[1] = motorLeftFront;
                 rev = (leftRev) ? DcMotorSimple.Direction.FORWARD : DcMotorSimple.Direction.REVERSE;
                 fwd = (leftRev) ? DcMotorSimple.Direction.REVERSE : DcMotorSimple.Direction.FORWARD;
-            }else if(dir == 'R'){
+            } else if (dir == 'R') {
                 motorsWithChange[0] = motorRightBack;
                 motorsWithChange[1] = motorLeftFront;
                 rev = (leftRev) ? DcMotorSimple.Direction.REVERSE : DcMotorSimple.Direction.FORWARD;
                 fwd = (leftRev) ? DcMotorSimple.Direction.FORWARD : DcMotorSimple.Direction.REVERSE;
-            }else return; // this should never happen just has to be here so we can define use defined variables
+            } else
+                return; // this should never happen just has to be here so we can define use defined variables
 
-            for(DcMotor m : motorsWithChange) m.setDirection(rev); // setting the reverse directions of motors
+            for (DcMotor m : motorsWithChange) m.setDirection(rev); // setting the reverse directions of motors
 
-            while(((dir == 'L' && dir != 'R') ? gamepad1.left_trigger:gamepad1.right_trigger) > 0){
+            while (((dir == 'L' && dir != 'R') ? gamepad1.left_trigger : gamepad1.right_trigger) > 0) {
                 motorLeftFront.setPower(MAX_CAP * multiplier);
                 motorLeftBack.setPower(MAX_CAP * multiplier);
                 motorRightFront.setPower(MAX_CAP * multiplier);
                 motorRightBack.setPower(MAX_CAP * multiplier);
             }
 
-            for(DcMotor m : motorsWithChange) m.setDirection(fwd); // setting directions back to normal and we should be good
+            for (DcMotor m : motorsWithChange) m.setDirection(fwd); // setting directions back to normal and we should be good
 
         }
     }
 
-    public void moveForward(double power){
+    public void moveForward(double power) {
         DcMotor motors[] = {motorLeftFront, motorLeftBack, motorRightFront, motorRightBack};
         DcMotorSimple.Direction leftDir = (leftRev) ? DcMotorSimple.Direction.REVERSE : DcMotorSimple.Direction.FORWARD;
         DcMotorSimple.Direction rightDir = (leftRev) ? DcMotorSimple.Direction.FORWARD : DcMotorSimple.Direction.REVERSE;
@@ -91,19 +100,43 @@ public class BaseModule extends LinearOpModePlus{
         motorRightFront.setDirection(rightDir);
         motorRightBack.setDirection(rightDir);
 
-        for(DcMotor m : motors) m.setPower(power * multiplier);
+        for (DcMotor m : motors) m.setPower(power * multiplier);
     }
 
-    public void moveBackward(double power){
+    public void moveBackward(double power) {
         moveForward(power);
     }
 
-    public void moveLeft(double power){
-        
+    public void moveLeft(double power) {
+
     }
 
-    public void moveRight(double power){
+    public void moveRight(double power) {
 
+    }
+
+    public void diagonal(Diagonal d, double power){
+        switch(d){
+            case LEFT_BCK:
+                motorLeftFront.setPower(power);
+                motorRightBack.setPower(power);
+                break;
+            case LEFT_FWD:
+                motorLeftBack.setPower(power);
+                motorRightFront.setPower(power);
+                break;
+            case RIGHT_BCK:
+                motorRightFront.setPower(power);
+                motorLeftBack.setPower(power);
+                break;
+            case RIGHT_FWD:
+                motorLeftFront.setPower(power);
+                motorRightBack.setPower(power);
+                break;
+            default:
+                moveForward(0);
+                break;
+        }
     }
 
     @Override
@@ -120,10 +153,24 @@ public class BaseModule extends LinearOpModePlus{
 
             if(gamepad1.left_trigger > 0) turn('L');
             else if(gamepad1.right_trigger > 0) turn('R');
-            else;
+            else{
+                if(lYAxis > 0 && lXAxis == 0) moveForward(lYAxis * multiplier);
+                else if(lYAxis < 0 && lXAxis == 0) moveBackward(lYAxis * multiplier);
+                else if(lYAxis > 0 && lXAxis < 0) diagonal(Diagonal.LEFT_FWD, MAX_CAP * multiplier);
+                else if(lYAxis > 0 && lXAxis > 0) diagonal(Diagonal.RIGHT_FWD, MAX_CAP * multiplier);
+                else if(lYAxis < 0 && lXAxis < 0) diagonal(Diagonal.LEFT_BCK, MAX_CAP * multiplier);
+                else if(lYAxis < 0 && lXAxis > 0) diagonal(Diagonal.RIGHT_BCK, MAX_CAP * multiplier);
+                else if(lXAxis < 0 && lYAxis == 0) moveLeft(MAX_CAP * multiplier);
+                else if(lXAxis > 0 && lYAxis == 0) moveRight(MAX_CAP * multiplier);
+                else moveForward(0);
+
+            }
 
             idle();
         }
     }
 
 }
+
+/*TODO
+* Write the moveLeft and the moveRight methods, than we test at 2:00*/
