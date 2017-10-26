@@ -23,6 +23,7 @@ public class BaseModule extends LinearOpModePlus {
 
     private boolean leftRev = true; // if the value changes during updates different wheels will be reversed
     private boolean suspendAllMotors = false;
+    private boolean holdingMultiplier = false;
 
 
     /**
