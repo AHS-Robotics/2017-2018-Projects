@@ -108,11 +108,17 @@ public class BaseModule extends LinearOpModePlus {
     }
 
     public void moveLeft(double power) {
-
+        motorLeftFront.setPower(power);
+        motorLeftBack.setPower(power);
+        motorRightFront.setPower(0);
+        motorRightBack.setPower(0);
     }
 
     public void moveRight(double power) {
-
+        motorLeftFront.setPower(0);
+        motorLeftBack.setPower(0);
+        motorRightFront.setPower(power);
+        motorRightBack.setPower(power);
     }
 
     public void diagonal(Diagonal d, double power){
@@ -173,4 +179,4 @@ public class BaseModule extends LinearOpModePlus {
 }
 
 /*TODO
-* Write the moveLeft and the moveRight methods, than we test at 2:00*/
+* we test at 2:00*/
