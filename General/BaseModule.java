@@ -11,7 +11,7 @@ enum Diagonal{
     // if stop is used that means all motor powers should be set to 0
 }
 
-@TeleOp(name="Base Module b2.0.3", group="Building Block")
+@TeleOp(name="Base Module 2.1.b0", group="Building Block")
 public class BaseModule extends LinearOpModePlus {
     private DcMotor motorLeftFront;
     private DcMotor motorLeftBack;
@@ -59,7 +59,7 @@ public class BaseModule extends LinearOpModePlus {
         dir = Character.toUpperCase(dir);
         DcMotor motorsWithChange[] = new DcMotor[2]; // this are the ones we'll have to reverse
         DcMotorSimple.Direction rev, fwd;
-        
+
         if (dir == 'L') {
             motorsWithChange[0] = motorLeftBack;
             motorsWithChange[1] = motorLeftFront;
@@ -81,7 +81,7 @@ public class BaseModule extends LinearOpModePlus {
         }
 
         for (DcMotor m : motorsWithChange) m.setDirection(rev); // setting the reverse directions of motors
-        
+
         while (((dir == 'L' && dir != 'R') ? gamepad1.left_trigger : gamepad1.right_trigger) > 0) {
             motorLeftFront.setPower(MAX_CAP * multiplier);
             motorLeftBack.setPower(MAX_CAP * multiplier);
@@ -111,8 +111,10 @@ public class BaseModule extends LinearOpModePlus {
     }
 
     public void moveLeft(double power) {
+        motorLeftBack.setDirection((motorLeftBack.getDirection() == DcMotorSimple.Direction.REVERSE) ? DcMotorSimple.Direction.FORWARD : DcMotorSimple.Direction.REVERSE);
         motorLeftFront.setPower(power);
         motorLeftBack.setPower(power);
+        
         motorRightFront.setPower(0);
         motorRightBack.setPower(0);
     }
@@ -120,6 +122,7 @@ public class BaseModule extends LinearOpModePlus {
     public void moveRight(double power) {
         motorLeftFront.setPower(0);
         motorLeftBack.setPower(0);
+        motorRightFront.setDirection((motorRightFront.getDirection() == DcMotor.Direction.FORWARD) ? DcMotorSimple.Direction.REVERSE : DcMotorSimple.Direction.REVERSE);
         motorRightFront.setPower(power);
         motorRightBack.setPower(power);
     }
@@ -185,3 +188,9 @@ public class BaseModule extends LinearOpModePlus {
     }
 
 }
+
+/*
+* TODO
+* [] Test the left and right direction
+* [] Refactor the code so that all the reversing of directions can be done in a method instead of a long ass statement
+* */
