@@ -11,7 +11,7 @@ enum Diagonal{
     // if stop is used that means all motor powers should be set to 0
 }
 
-@TeleOp(name="Base Module b2.0.0", group="Building Block")
+@TeleOp(name="Base Module b2.0.3", group="Building Block")
 public class BaseModule extends LinearOpModePlus {
     private DcMotor motorLeftFront;
     private DcMotor motorLeftBack;
@@ -23,7 +23,6 @@ public class BaseModule extends LinearOpModePlus {
 
     private boolean leftRev = true; // if the value changes during updates different wheels will be reversed
     private boolean suspendAllMotors = false;
-    private boolean holdingMultiplier = false;
 
 
     /**
@@ -57,38 +56,41 @@ public class BaseModule extends LinearOpModePlus {
     }
 
     private void turn(char dir) {
-        if ((dir != 'L' || dir != 'l') || (dir != 'R' || dir != 'r'))
-            return; // here we need to print an error but that has to wait until we print functions work better
-        else {
-            dir = Character.toUpperCase(dir);
-            DcMotor motorsWithChange[] = new DcMotor[2]; // this are the ones we'll have to reverse
-            DcMotorSimple.Direction rev, fwd;
-
-            if (dir == 'L') {
-                motorsWithChange[0] = motorLeftBack;
-                motorsWithChange[1] = motorLeftFront;
-                rev = (leftRev) ? DcMotorSimple.Direction.FORWARD : DcMotorSimple.Direction.REVERSE;
-                fwd = (leftRev) ? DcMotorSimple.Direction.REVERSE : DcMotorSimple.Direction.FORWARD;
-            } else if (dir == 'R') {
-                motorsWithChange[0] = motorRightBack;
-                motorsWithChange[1] = motorLeftFront;
-                rev = (leftRev) ? DcMotorSimple.Direction.REVERSE : DcMotorSimple.Direction.FORWARD;
-                fwd = (leftRev) ? DcMotorSimple.Direction.FORWARD : DcMotorSimple.Direction.REVERSE;
-            } else
-                return; // this should never happen just has to be here so we can define use defined variables
-
-            for (DcMotor m : motorsWithChange) m.setDirection(rev); // setting the reverse directions of motors
-
-            while (((dir == 'L' && dir != 'R') ? gamepad1.left_trigger : gamepad1.right_trigger) > 0) {
-                motorLeftFront.setPower(MAX_CAP * multiplier);
-                motorLeftBack.setPower(MAX_CAP * multiplier);
-                motorRightFront.setPower(MAX_CAP * multiplier);
-                motorRightBack.setPower(MAX_CAP * multiplier);
-            }
-
-            for (DcMotor m : motorsWithChange) m.setDirection(fwd); // setting directions back to normal and we should be good
-
+        dir = Character.toUpperCase(dir);
+        DcMotor motorsWithChange[] = new DcMotor[2]; // this are the ones we'll have to reverse
+        DcMotorSimple.Direction rev, fwd;
+        
+        if (dir == 'L') {
+            motorsWithChange[0] = motorLeftBack;
+            motorsWithChange[1] = motorLeftFront;
+            rev = (leftRev) ? DcMotorSimple.Direction.FORWARD : DcMotorSimple.Direction.REVERSE;
+            fwd = (leftRev) ? DcMotorSimple.Direction.REVERSE : DcMotorSimple.Direction.FORWARD;
+            telemetry.addData("> ", "Turning Left");
+            telemetry.update();
+        } else if (dir == 'R') {
+            motorsWithChange[0] = motorRightBack;
+            motorsWithChange[1] = motorLeftFront;
+            rev = (leftRev) ? DcMotorSimple.Direction.REVERSE : DcMotorSimple.Direction.FORWARD;
+            fwd = (leftRev) ? DcMotorSimple.Direction.FORWARD : DcMotorSimple.Direction.REVERSE;
+            telemetry.addData("> ", "Turning Left");
+            telemetry.update();
+        } else{
+            telemetry.addData("> ", "Bad Input");
+            telemetry.update();
+            return;
         }
+
+        for (DcMotor m : motorsWithChange) m.setDirection(rev); // setting the reverse directions of motors
+        
+        while (((dir == 'L' && dir != 'R') ? gamepad1.left_trigger : gamepad1.right_trigger) > 0) {
+            motorLeftFront.setPower(MAX_CAP * multiplier);
+            motorLeftBack.setPower(MAX_CAP * multiplier);
+            motorRightFront.setPower(MAX_CAP * multiplier);
+            motorRightBack.setPower(MAX_CAP * multiplier);
+        }
+
+        for (DcMotor m : motorsWithChange) m.setDirection(fwd); // setting directions back to normal and we should be good
+
     }
 
     public void moveForward(double power) {
@@ -148,7 +150,12 @@ public class BaseModule extends LinearOpModePlus {
 
     @Override
     public void runOpMode(){
-
+        motorLeftBack = setMotor("motorLeftBack");
+        motorLeftFront = setMotor("motorLeftFront");
+        motorRightBack = setMotor("motorRightBack");
+        motorRightFront = setMotor("motorRightFront");
+        telemetry.addData("> ", "Ready to go!");
+        telemetry.update();
         waitForStart();
 
         while(opModeIsActive()){
@@ -178,6 +185,3 @@ public class BaseModule extends LinearOpModePlus {
     }
 
 }
-
-/*TODO
-* we test at 2:00*/
