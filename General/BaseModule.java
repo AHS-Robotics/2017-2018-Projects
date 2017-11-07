@@ -17,6 +17,8 @@ public class BaseModule extends LinearOpModePlus {
     private DcMotor motorLeftBack;
     private DcMotor motorRightFront;
     private DcMotor motorRightBack;
+    private DcMotor motorLeftShaft;
+    private DcMotor motorRightShaft;
 
     private double multiplierStorage = 0;
     private float lYAxis = 0, lXAxis = 0;
@@ -150,6 +152,12 @@ public class BaseModule extends LinearOpModePlus {
                 break;
         }
     }
+    
+    public void moveShaft(char dir){
+        if(dir == 'S'){
+            
+        }
+    }
 
     @Override
     public void runOpMode(){
@@ -157,6 +165,8 @@ public class BaseModule extends LinearOpModePlus {
         motorLeftFront = setMotor("motorLeftFront");
         motorRightBack = setMotor("motorRightBack");
         motorRightFront = setMotor("motorRightFront");
+        motorLeftShaft = setMotor("motorLeftShaft");
+        
         telemetry.addData("> ", "Ready to go!");
         telemetry.update();
         waitForStart();
