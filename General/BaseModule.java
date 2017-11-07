@@ -202,6 +202,11 @@ public class BaseModule extends LinearOpModePlus {
                 else moveForward(0);
 
             }
+            
+            if(gamepad2.dpad_up) moveShaft('U');
+            else if(gamepad2.dpad_down) moveShaft('D');
+            else if(!gamepad2.dpad_down || !gamepad2.dpad_up) moveShaft('S');
+            else ;
 
             idle();
         }
