@@ -155,7 +155,17 @@ public class BaseModule extends LinearOpModePlus {
     
     public void moveShaft(char dir){
         if(dir == 'S'){
-            
+            motorLeftShaft.setPower(0);
+            motorRightShaft.setPower(0);
+        }else if(dir == 'U'){
+            motorLeftShaft.setPower(MAX_CAP * multiplier);
+            motorRightShaft.setPower(MAX_CAP * multiplier);
+        }else if(dir == 'D'){
+            motorLeftShaft.setPower((MAX_CAP * multiplier) * -1.0);
+            motorRightShaft.setPower((MAX_CAP * multiplier) * -1.0);
+        }else{
+            telemetry.addData("> ", "Unknown direction");
+            telemetry.update();
         }
     }
 
@@ -196,7 +206,6 @@ public class BaseModule extends LinearOpModePlus {
             idle();
         }
     }
-
 }
 
 /*
