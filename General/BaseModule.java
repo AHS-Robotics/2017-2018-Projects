@@ -11,7 +11,7 @@ enum Diagonal{
     // if stop is used that means all motor powers should be set to 0
 }
 
-@TeleOp(name="Base Module 2.1.b0", group="Building Block")
+@TeleOp(name="Base Module 2.1.b4", group="Building Block")
 public class BaseModule extends LinearOpModePlus {
     private DcMotor motorLeftFront;
     private DcMotor motorLeftBack;
@@ -116,7 +116,7 @@ public class BaseModule extends LinearOpModePlus {
         motorLeftBack.setDirection((motorLeftBack.getDirection() == DcMotorSimple.Direction.REVERSE) ? DcMotorSimple.Direction.FORWARD : DcMotorSimple.Direction.REVERSE);
         motorLeftFront.setPower(power);
         motorLeftBack.setPower(power);
-        
+
         motorRightFront.setPower(0);
         motorRightBack.setPower(0);
     }
@@ -152,7 +152,7 @@ public class BaseModule extends LinearOpModePlus {
                 break;
         }
     }
-    
+
     public void moveShaft(char dir){
         if(dir == 'S'){
             motorLeftShaft.setPower(0);
@@ -176,7 +176,10 @@ public class BaseModule extends LinearOpModePlus {
         motorRightBack = setMotor("motorRightBack");
         motorRightFront = setMotor("motorRightFront");
         motorLeftShaft = setMotor("motorLeftShaft");
-        
+        motorRightShaft = setMotor("motorRightShaft");
+
+        motorRightShaft.setDirection(DcMotorSimple.Direction.REVERSE);
+
         telemetry.addData("> ", "Ready to go!");
         telemetry.update();
         waitForStart();
@@ -202,7 +205,7 @@ public class BaseModule extends LinearOpModePlus {
                 else moveForward(0);
 
             }
-            
+
             if(gamepad2.dpad_up) moveShaft('U');
             else if(gamepad2.dpad_down) moveShaft('D');
             else if(!gamepad2.dpad_down || !gamepad2.dpad_up) moveShaft('S');
