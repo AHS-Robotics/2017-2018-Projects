@@ -201,8 +201,7 @@ public class BaseModule extends LinearOpModePlus {
         waitForStart();
 
         while(opModeIsActive()){
-            update(); // keeping data up to date
-            status = "idle";
+            update(); // keeping data up to data
             // here are some control options by reversing booleans
             if(gamepad1.a) leftRev = (leftRev) ? false:true;
             if(gamepad1.back) suspendAllMotors = (suspendAllMotors) ? false:true;
