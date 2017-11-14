@@ -11,7 +11,7 @@ enum Diagonal{
     // if stop is used that means all motor powers should be set to 0
 }
 
-@TeleOp(name="Base Module 2.1.b4", group="Building Block")
+@TeleOp(name="Base Module 2.2.b0", group="Building Block")
 public class BaseModule extends LinearOpModePlus {
     private DcMotor motorLeftFront;
     private DcMotor motorLeftBack;
@@ -19,6 +19,8 @@ public class BaseModule extends LinearOpModePlus {
     private DcMotor motorRightBack;
     private DcMotor motorLeftShaft;
     private DcMotor motorRightShaft;
+    
+    private String status; // tells user what the roboto is doing
 
     private double multiplierStorage = 0;
     private float lYAxis = 0, lXAxis = 0;
@@ -55,9 +57,24 @@ public class BaseModule extends LinearOpModePlus {
             multiplierStorage = 0;
         }
 
+        // Print motor data
+        telemetry.addData(">", "motorLeftFront: " + motorLeftFront.getPower() + "\t" + ((motorLeftFront.getDirection() == DcMotorSimple.Direction.FORWARD) ? "Forward" : "Reverse"));
+        telemetry.addData(">", "motorLeftBack: " + motorLeftBack.getPower() + "\t" + ((motorLeftBack.getDirection() == DcMotorSimple.Direction.FORWARD) ? "Forward" : "Reverse"));
+        telemetry.addData(">", "motorRightFront: " + motorRightFront.getPower() + "\t" + ((motorRightFront.getDirection() == DcMotorSimple.Direction.FORWARD) ? "Forward" : "Reverse"));
+        telemetry.addData(">", "motorRightBack: " + motorRightBack.getPower() + "\t" + ((motorRightBack.getDirection() == DcMotorSimple.Direction.FORWARD) ? "Forward" : "Reverse"));
+        telemetry.addData(">", "motorLeftShaft: " + motorLeftShaft.getPower() + "\t" + ((motorLeftShaft.getDirection() == DcMotorSimple.Direction.FORWARD) ? "Forward" : "Reverse"));
+        telemetry.addData(">", "motorRightShaft: " + motorRightShaft.getPower() + "\t" + ((motorRightShaft.getDirection() == DcMotorSimple.Direction.FORWARD) ? "Forward" : "Reverse"));
+
+        // Print status
+        telemetry.addData("> ", "Multiplier: " + multiplier);
+        telemetry.addData("> ", "Power Cap: " + multiplier * 1.0);
+        telemetry.addData("> ", "Status: " + status);
+
+        telemetry.update();
     }
 
     private void turn(char dir) {
+        status = "Turning " + ((dir == 'L') ? "Left" : (dir == 'R') ? "Right" : "Unknown");
         dir = Character.toUpperCase(dir);
         DcMotor motorsWithChange[] = new DcMotor[2]; // this are the ones we'll have to reverse
         DcMotorSimple.Direction rev, fwd;
@@ -67,18 +84,12 @@ public class BaseModule extends LinearOpModePlus {
             motorsWithChange[1] = motorLeftFront;
             rev = (leftRev) ? DcMotorSimple.Direction.FORWARD : DcMotorSimple.Direction.REVERSE;
             fwd = (leftRev) ? DcMotorSimple.Direction.REVERSE : DcMotorSimple.Direction.FORWARD;
-            telemetry.addData("> ", "Turning Left");
-            telemetry.update();
         } else if (dir == 'R') {
             motorsWithChange[0] = motorRightBack;
             motorsWithChange[1] = motorLeftFront;
             rev = (leftRev) ? DcMotorSimple.Direction.REVERSE : DcMotorSimple.Direction.FORWARD;
             fwd = (leftRev) ? DcMotorSimple.Direction.FORWARD : DcMotorSimple.Direction.REVERSE;
-            telemetry.addData("> ", "Turning Left");
-            telemetry.update();
         } else{
-            telemetry.addData("> ", "Bad Input");
-            telemetry.update();
             return;
         }
 
@@ -96,6 +107,7 @@ public class BaseModule extends LinearOpModePlus {
     }
 
     public void moveForward(double power) {
+        status = "Moving forward";
         DcMotor motors[] = {motorLeftFront, motorLeftBack, motorRightFront, motorRightBack};
         DcMotorSimple.Direction leftDir = (leftRev) ? DcMotorSimple.Direction.REVERSE : DcMotorSimple.Direction.FORWARD;
         DcMotorSimple.Direction rightDir = (leftRev) ? DcMotorSimple.Direction.FORWARD : DcMotorSimple.Direction.REVERSE;
@@ -109,6 +121,7 @@ public class BaseModule extends LinearOpModePlus {
     }
 
     public void moveBackward(double power) {
+        status = "Moving Backwards";
         moveForward(power);
     }
 
@@ -122,6 +135,7 @@ public class BaseModule extends LinearOpModePlus {
     }
 
     public void moveRight(double power) {
+        status = "Moving right";
         motorLeftFront.setPower(0);
         motorLeftBack.setPower(0);
         motorRightFront.setDirection((motorRightFront.getDirection() == DcMotor.Direction.FORWARD) ? DcMotorSimple.Direction.REVERSE : DcMotorSimple.Direction.REVERSE);
@@ -130,6 +144,7 @@ public class BaseModule extends LinearOpModePlus {
     }
 
     public void diagonal(Diagonal d, double power){
+        status = "Moving diagonal";
         switch(d){
             case LEFT_BCK:
                 motorLeftFront.setPower(power);
@@ -154,6 +169,7 @@ public class BaseModule extends LinearOpModePlus {
     }
 
     public void moveShaft(char dir){
+        status = "Moving shaft " + ((dir == 'U') ? "Up" : (dir == 'D') ? "Down": "Unknown");
         if(dir == 'S'){
             motorLeftShaft.setPower(0);
             motorRightShaft.setPower(0);
@@ -164,13 +180,13 @@ public class BaseModule extends LinearOpModePlus {
             motorLeftShaft.setPower((MAX_CAP * multiplier) * -1.0);
             motorRightShaft.setPower((MAX_CAP * multiplier) * -1.0);
         }else{
-            telemetry.addData("> ", "Unknown direction");
-            telemetry.update();
+            return;
         }
     }
 
     @Override
     public void runOpMode(){
+        status = "Initializing";
         motorLeftBack = setMotor("motorLeftBack");
         motorLeftFront = setMotor("motorLeftFront");
         motorRightBack = setMotor("motorRightBack");
@@ -186,7 +202,7 @@ public class BaseModule extends LinearOpModePlus {
 
         while(opModeIsActive()){
             update(); // keeping data up to date
-
+            status = "idle";
             // here are some control options by reversing booleans
             if(gamepad1.a) leftRev = (leftRev) ? false:true;
             if(gamepad1.back) suspendAllMotors = (suspendAllMotors) ? false:true;
@@ -202,7 +218,10 @@ public class BaseModule extends LinearOpModePlus {
                 else if(lYAxis < 0 && lXAxis > 0) diagonal(Diagonal.RIGHT_BCK, MAX_CAP * multiplier);
                 else if(lXAxis < 0 && lYAxis == 0) moveLeft(MAX_CAP * multiplier);
                 else if(lXAxis > 0 && lYAxis == 0) moveRight(MAX_CAP * multiplier);
-                else moveForward(0);
+                else{
+                    status = "Idle";
+                    moveForward(0);
+                }
 
             }
 
@@ -215,9 +234,3 @@ public class BaseModule extends LinearOpModePlus {
         }
     }
 }
-
-/*
-* TODO
-* [] Test the left and right direction
-* [] Refactor the code so that all the reversing of directions can be done in a method instead of a long ass statement
-* */
