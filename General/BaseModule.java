@@ -1,3 +1,4 @@
+
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -19,7 +20,7 @@ public class BaseModule extends LinearOpModePlus {
     private DcMotor motorRightBack;
     private DcMotor motorLeftShaft;
     private DcMotor motorRightShaft;
-    
+
     private String status; // tells user what the roboto is doing
 
     private double multiplierStorage = 0;
@@ -82,8 +83,10 @@ public class BaseModule extends LinearOpModePlus {
         if (dir == 'L') {
             motorsWithChange[0] = motorLeftBack;
             motorsWithChange[1] = motorLeftFront;
-            rev = (leftRev) ? DcMotorSimple.Direction.FORWARD : DcMotorSimple.Direction.REVERSE;
-            fwd = (leftRev) ? DcMotorSimple.Direction.REVERSE : DcMotorSimple.Direction.FORWARD;
+             
+            // if left turning is a little funky play around with these directions
+            rev = (leftRev) ? DcMotorSimple.Direction.REVERSE : DcMotorSimple.Direction.FORWARD;
+            fwd = (leftRev) ? DcMotorSimple.Direction.FORWARD : DcMotorSimple.Direction.REVERSE;
         } else if (dir == 'R') {
             motorsWithChange[0] = motorRightBack;
             motorsWithChange[1] = motorLeftFront;
