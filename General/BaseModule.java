@@ -1,4 +1,3 @@
-
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -12,7 +11,7 @@ enum Diagonal{
     // if stop is used that means all motor powers should be set to 0
 }
 
-@TeleOp(name="Base Module 2.2.b0", group="Building Block")
+@TeleOp(name="Base Module 2.4.b0", group="Building Block")
 public class BaseModule extends LinearOpModePlus {
     private DcMotor motorLeftFront;
     private DcMotor motorLeftBack;
@@ -58,6 +57,11 @@ public class BaseModule extends LinearOpModePlus {
             multiplierStorage = 0;
         }
 
+        // Print status
+        telemetry.addData("> ", "Status: " + status);
+        telemetry.addData("> ", "Multiplier: " + multiplier);
+        telemetry.addData("> ", "Power Cap: " + multiplier * 1.0);
+
         // Print motor data
         telemetry.addData(">", "motorLeftFront: " + motorLeftFront.getPower() + "\t" + ((motorLeftFront.getDirection() == DcMotorSimple.Direction.FORWARD) ? "Forward" : "Reverse"));
         telemetry.addData(">", "motorLeftBack: " + motorLeftBack.getPower() + "\t" + ((motorLeftBack.getDirection() == DcMotorSimple.Direction.FORWARD) ? "Forward" : "Reverse"));
@@ -65,11 +69,6 @@ public class BaseModule extends LinearOpModePlus {
         telemetry.addData(">", "motorRightBack: " + motorRightBack.getPower() + "\t" + ((motorRightBack.getDirection() == DcMotorSimple.Direction.FORWARD) ? "Forward" : "Reverse"));
         telemetry.addData(">", "motorLeftShaft: " + motorLeftShaft.getPower() + "\t" + ((motorLeftShaft.getDirection() == DcMotorSimple.Direction.FORWARD) ? "Forward" : "Reverse"));
         telemetry.addData(">", "motorRightShaft: " + motorRightShaft.getPower() + "\t" + ((motorRightShaft.getDirection() == DcMotorSimple.Direction.FORWARD) ? "Forward" : "Reverse"));
-
-        // Print status
-        telemetry.addData("> ", "Multiplier: " + multiplier);
-        telemetry.addData("> ", "Power Cap: " + multiplier * 1.0);
-        telemetry.addData("> ", "Status: " + status);
 
         telemetry.update();
     }
@@ -83,7 +82,7 @@ public class BaseModule extends LinearOpModePlus {
         if (dir == 'L') {
             motorsWithChange[0] = motorLeftBack;
             motorsWithChange[1] = motorLeftFront;
-             
+
             // if left turning is a little funky play around with these directions
             rev = (leftRev) ? DcMotorSimple.Direction.REVERSE : DcMotorSimple.Direction.FORWARD;
             fwd = (leftRev) ? DcMotorSimple.Direction.FORWARD : DcMotorSimple.Direction.REVERSE;
@@ -97,6 +96,7 @@ public class BaseModule extends LinearOpModePlus {
         }
 
         for (DcMotor m : motorsWithChange) m.setDirection(rev); // setting the reverse directions of motors
+        motorLeftFront.setDirection((motorLeftFront.getDirection() == DcMotorSimple.Direction.REVERSE) ? DcMotorSimple.Direction.FORWARD : DcMotorSimple.Direction.REVERSE);
 
         while (((dir == 'L' && dir != 'R') ? gamepad1.left_trigger : gamepad1.right_trigger) > 0) {
             motorLeftFront.setPower(MAX_CAP * multiplier);
@@ -124,23 +124,28 @@ public class BaseModule extends LinearOpModePlus {
     }
 
     public void moveBackward(double power) {
-        status = "Moving Backwards";
+        status = "Moving backwards";
         moveForward(power);
     }
 
     public void moveLeft(double power) {
+        status = "Moving left";
         motorLeftBack.setDirection((motorLeftBack.getDirection() == DcMotorSimple.Direction.REVERSE) ? DcMotorSimple.Direction.FORWARD : DcMotorSimple.Direction.REVERSE);
         motorLeftFront.setPower(power);
         motorLeftBack.setPower(power);
 
-        motorRightFront.setPower(0);
-        motorRightBack.setPower(0);
+        motorRightBack.setDirection((motorRightBack.getDirection() == DcMotorSimple.Direction.REVERSE) ? DcMotorSimple.Direction.FORWARD : DcMotorSimple.Direction.REVERSE);
+        motorRightFront.setPower(power);
+        motorRightBack.setPower(power);
     }
 
     public void moveRight(double power) {
         status = "Moving right";
-        motorLeftFront.setPower(0);
-        motorLeftBack.setPower(0);
+        motorLeftFront.setPower(power);
+        motorLeftBack.setPower(power);
+        motorLeftFront.setDirection((motorLeftFront.getDirection() == DcMotorSimple.Direction.REVERSE) ? DcMotorSimple.Direction.FORWARD : DcMotorSimple.Direction.REVERSE);
+
+
         motorRightFront.setDirection((motorRightFront.getDirection() == DcMotor.Direction.FORWARD) ? DcMotorSimple.Direction.REVERSE : DcMotorSimple.Direction.REVERSE);
         motorRightFront.setPower(power);
         motorRightBack.setPower(power);
@@ -230,9 +235,33 @@ public class BaseModule extends LinearOpModePlus {
             if(gamepad2.dpad_up) moveShaft('U');
             else if(gamepad2.dpad_down) moveShaft('D');
             else if(!gamepad2.dpad_down || !gamepad2.dpad_up) moveShaft('S');
-            else ;
 
+            if(gamepad1.dpad_left)decPower();
+            if(gamepad1.dpad_right)incPower();
+
+            if(!gamepad2.dpad_up && !gamepad2.dpad_up && gamepad1.left_stick_x == 0 && gamepad1.left_stick_y == 0 && gamepad1.right_trigger == 0 && gamepad1.left_trigger == 0){
+                motorLeftFront.setPower(0);
+                motorLeftBack.setPower(0);
+                motorRightFront.setPower(0);
+                motorRightBack.setPower(0);
+                motorLeftShaft.setPower(0);
+                motorRightShaft.setPower(0);
+            }
             idle();
         }
     }
 }
+
+/* *
+* Change Log
+*
+* - on line 99 added a line that is suppose to fix one of the problems that we have with turning
+* as of now that part of the program is untested
+*
+* - in the moveLeft and moveRight methods, we changed all wheels to move
+*
+* - on lines 233 and 234 added in conditional that will check if driver pressed dpad left or
+* right and than increment and decrement based on what is pressed
+*   - left -> decPower()
+*   - right -> incPower()
+*/
