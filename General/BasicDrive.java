@@ -1,13 +1,13 @@
-// Package goes here
+//Package goes here
 
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
-/*
-* For a robot that contains only two motors and is only meant to drive
-* or if you need to steal this for another TeleOp
-* */
+/**
+ * For a robot that contains only two motors and is only meant to drive
+ * or if you need to steal this for another TeleOp
+**/
 
 @TeleOp(name="Basic Drive v1.0.0", group="General")
 public class BasicDrive extends LinearOpMode{
