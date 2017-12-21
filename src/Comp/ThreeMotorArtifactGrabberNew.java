@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-@TeleOp(name="Jeff Design New Drive", group = "Trash")
+@TeleOp(name="Jeff Design New Drive 0.0.1", group = "Final Bots")
 public class ThreeMotorArtifactGrabberNew extends LinearOpMode{
     private DcMotor motorFrontLeft;
     private DcMotor motorFrontRight;
@@ -13,7 +13,8 @@ public class ThreeMotorArtifactGrabberNew extends LinearOpMode{
     private DcMotor motorBackRight;
     private DcMotor motorExtendLeft;
     private DcMotor motorExtendRight;
-    private DcMotor motorExtend;
+    private DcMotor motorExtendBack;
+	private DcMotor motorExtendFront;
     private double multiplier = 1.0;
     private static final double INCREMENTER = 0.1; // how much we'll change the power by
     private static final double MAX_POWER = 1.0; // fixing magic number
@@ -177,7 +178,45 @@ public class ThreeMotorArtifactGrabberNew extends LinearOpMode{
             }else if(gamepad1.b){
                 motorExtend.setPower(MAX_POWER * multiplier);
             }
+			
+			 // moving the arm up and down
+			if(gamepad2.dpad_up){
+				double power = MAX_POWER * multiplier;
+				motorExtendLeft.setPower(power);
+				motorExtendRight.setPower(power);
+			}else if(gamepad2.dpad_down){
+				double power = MIN_POWER * multiplier;
+				motorExtendLeft.setPower(power);
+				motorExtendRight.setPower(power);
+			}else if(!gamepad2.dpad_up && !gamepad2.dpad_down){
+				double power = 0;
+				motorExtendLeft.setPower(power);
+				motorExtendRight.setPower(power);
+			}
 
+            // extending the back arm
+			if(gamepad2.left_trigger > 0){
+				double power = MIN_POWER * multiplier;
+				motorExtendBack.setPower(power);
+			}else if(gamepad2.right_trigger > 0){
+				double power = MAX_POWER * multiplier;
+				motorExtendBack.setPower(power);
+			}else if(gamepad2.left_trigger == 0){
+				double power = 0;
+				motorExtendBack.setPower(0);
+			}
+			
+			// extending the front arm
+			if(gamepad2.left_bumper){
+				double power = MIN_POWER * multiplier;
+				motorExtendFront.setPower(power);
+			}else if(gamepad2.right_bumper){
+				double power = MAX_POWER * multiplier;
+				motorExtendFront.setPower(power);
+			}else if(!gamepad2.left_bumper && ! gamepad2.right_bumper){
+				double power = 0;
+				motorExtendFront.setPower(power);
+			}
 
             // Driving ^ v < >
             if((gamepad1.left_stick_y > 0 && gamepad1.left_stick_y <= 1.0) && (gamepad1.left_stick_x >= 0.0 && gamepad1.left_stick_x <= 0.2)){
