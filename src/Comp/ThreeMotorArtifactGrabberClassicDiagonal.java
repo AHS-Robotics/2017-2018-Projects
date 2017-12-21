@@ -246,13 +246,13 @@ public class ThreeMotorArtifactGrabberClassic extends LinearOpMode{
                 motorFrontLeft.setPower(power);
                 motorBackRight.setPower(power);
                 motorFrontRight.setPower(power);
-			}else if(false){
+			}else if(lXAxis < 0 && lYAxis > 0){
 				/* LEFT FRONT DIAGONAL */
 				double power = MAX_POWER * multiplier;
 				
 				motorBackLeft.setPower(power);
 				motorFrontRight.setPower(power);
-			}else if(false){
+			}else if(lXAxis < 0 && lYAxis < 0){
 				/* LEFT BACK DIAGONAL */
 				double power = MAX_POWER * multiplier;
 				motorFrontLeft = reverseMotorDirection(motorFrontLeft);
@@ -260,13 +260,13 @@ public class ThreeMotorArtifactGrabberClassic extends LinearOpMode{
 				
 				motorFrontLeft.setPower(power);
 				motorBackRight.setPower(power);
-			}else if(false){
+			}else if(lXAxis > 0 && lYAxis > 0){
 				/* RIGHT FRONT DIAGONAL */
 				double power = MAX_POWER * multiplier;
 				
 				motorFrontLeft.setPower(power);
 				motorBackRight.setPower(power);
-			}else if(false){
+			}else if(lXAxis < 0 && lYAxis < 0){
 				/* RIGHT BACK DIAGONAL */
 				double power = MAX_POWER * multiplier;
 				motorFrontRight = reverseMotorDirection(motorFrontRight);
