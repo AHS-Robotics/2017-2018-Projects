@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 @TeleOp(name="Cass Four Wheel Diagonal 0.0.1b", group = "Trash")
-public class PullySystemClassic extends LinearOpMode{
+public class PullySystemClassicDiagonal extends LinearOpMode{
     private DcMotor motorFrontLeft;
     private DcMotor motorFrontRight;
     private DcMotor motorBackLeft;
