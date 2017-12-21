@@ -1,3 +1,4 @@
+
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -5,7 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-@TeleOp(name="Jeff Classic Drive", group = "Trash")
+@TeleOp(name="Jeff Classic Drive", group = "Final Bots")
 public class ThreeMotorArtifactGrabberClassic extends LinearOpMode{
     private DcMotor motorFrontLeft;
     private DcMotor motorFrontRight;
@@ -13,7 +14,8 @@ public class ThreeMotorArtifactGrabberClassic extends LinearOpMode{
     private DcMotor motorBackRight;
     private DcMotor motorExtendLeft;
     private DcMotor motorExtendRight;
-    private DcMotor motorExtend;
+    private DcMotor motorExtendBack;
+	private DcMotor motorExtendFront;
     private double multiplier = 1.0;
     private double lXAxis;
     private double lYAxis;
@@ -128,7 +130,8 @@ public class ThreeMotorArtifactGrabberClassic extends LinearOpMode{
         motorBackRight = hardwareMap.dcMotor.get("motorBackRight");
         motorExtendLeft = hardwareMap.dcMotor.get("motorExtendLeft");
         motorExtendRight = hardwareMap.dcMotor.get("motorExtendRight");
-        motorExtend = hardwareMap.dcMotor.get("motorExtend");
+        motorExtendBack = hardwareMap.dcMotor.get("motorExtendBack");
+		motorExtendFront = hardwareMap.dcMotor.get("motorExtendFront");
 
         /*
         * The following should be true
@@ -146,11 +149,12 @@ public class ThreeMotorArtifactGrabberClassic extends LinearOpMode{
             lXAxis = gamepad1.left_stick_x;
             lYAxis = gamepad1.left_stick_y;
 
-            // just so we
+            // Reverse forwards and backwards control
             if(gamepad1.a){
                 reverseWheelDirection();
             }
-
+			
+			// changes the max speed the bot can go
             if(gamepad1.dpad_left){
                 changePower('d');
             }
@@ -158,7 +162,8 @@ public class ThreeMotorArtifactGrabberClassic extends LinearOpMode{
             if(gamepad1.dpad_right){
                 changePower('u');
             }
-
+			
+			// Allows it to do turns on the axis
             if(gamepad1.left_trigger > 0.0){
                 turn('r');
             }else if(gamepad1.left_trigger < 0.0){
@@ -166,23 +171,44 @@ public class ThreeMotorArtifactGrabberClassic extends LinearOpMode{
             }
 
             // moving the arm up and down
-            if(gamepad1.left_bumper){
-                motorExtendLeft.setPower(MIN_POWER * multiplier);
-                motorExtendRight.setPower(MIN_POWER * multiplier);
-            }else if(gamepad1.right_bumper){
-                motorExtendLeft.setPower(MAX_POWER * multiplier);
-                motorExtendRight.setPower(MAX_POWER * multiplier);
-            }else if(!gamepad1.left_bumper && !gamepad1.right_bumper){
-                motorExtendLeft.setPower(0);
-                motorExtendRight.setPower(0);
-            }
+			if(gamepad2.dpad_up){
+				double power = MAX_POWER * multiplier;
+				motorExtendLeft.setPower(power);
+				motorExtendRight.setPower(power);
+			}else if(gamepad2.dpad_down){
+				double power = MIN_POWER * multiplier;
+				motorExtendLeft.setPower(power);
+				motorExtendRight.setPower(power);
+			}else if(!gamepad2.dpad_up && !gamepad2.dpad_down){
+				double power = 0;
+				motorExtendLeft.setPower(power);
+				motorExtendRight.setPower(power);
+			}
 
-            // extending the arm
-            if(gamepad1.x){
-                motorExtend.setPower(MIN_POWER * multiplier);
-            }else if(gamepad1.b){
-                motorExtend.setPower(MAX_POWER * multiplier);
-            }
+            // extending the back arm
+			if(gamepad2.left_trigger > 0){
+				double power = MIN_POWER * multiplier;
+				motorExtendBack.setPower(power);
+			}else if(gamepad2.right_trigger > 0){
+				double power = MAX_POWER * multiplier;
+				motorExtendBack.setPower(power);
+			}else if(gamepad2.left_trigger == 0){
+				double power = 0;
+				motorExtendBack.setPower(0);
+			}
+			
+			// extending the front arm
+			if(gamepad2.left_bumper){
+				double power = MIN_POWER * multiplier;
+				motorExtendFront.setPower(power);
+			}else if(gamepad2.right_bumper){
+				double power = MAX_POWER * multiplier;
+				motorExtendFront.setPower(power);
+			}else if(!gamepad2.left_bumper && ! gamepad2.right_bumper){
+				double power = 0;
+				motorExtendFront.setPower(power);
+			}
+			
 
 
             // Driving ^ v < >
