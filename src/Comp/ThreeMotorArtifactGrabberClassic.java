@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-@TeleOp(name="Jeff Classic Drive", group = "Final Bots")
+@TeleOp(name="Jeff Classic Drive 0.0.1", group = "Final Bots")
 public class ThreeMotorArtifactGrabberClassic extends LinearOpMode{
     private DcMotor motorFrontLeft;
     private DcMotor motorFrontRight;
