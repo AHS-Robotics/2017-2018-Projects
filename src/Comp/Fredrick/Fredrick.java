@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
-@TeleOp(name="Fredrick v0.1.0", group="Testing")
+@TeleOp(name="Fredrick v0.0.9", group="Testing")
 public class Fredrick extends LinearOpMode{
     private DcMotor frontLeft;
     private DcMotor backLeft;
@@ -82,6 +82,24 @@ public class Fredrick extends LinearOpMode{
         leftFrontDiagonal(-pow);
     }
 
+    public void extendArm(double pow){
+        extendLeft.setPower(pow);
+        extendRight.setPower(pow);
+    }
+    
+    public void retractArm(double pow){
+        extendArm(-pow);
+    }
+    
+    public void raiseHeight(double pow){
+        heightLeft.setPower(pow);
+        heightRight.setPower(pow);
+    }
+    
+    public void lowerHeight(double pow){
+        raiseHeight(-pow);
+    }
+    
     public void cprint(String val){
         telemetry.clear();
         telemetry.addData(">> ", val);
@@ -173,25 +191,39 @@ public class Fredrick extends LinearOpMode{
 
         // Starting the TeleOp
         while(opModeIsActive()){
-
+            /** The Driving Controls **/
             // ^ v < >
             if(gamepad1.left_stick_y > 0 && gamepad1.left_stick_x == 0) driveForward();
-            if(gamepad1.left_stick_y < 0 && gamepad1.left_stick_x == 0) driveBack();
+            else if(gamepad1.left_stick_y < 0 && gamepad1.left_stick_x == 0) driveBack();
+            
             if(gamepad1.left_stick_x > 0 && gamepad1.left_stick_y == 0) moveRight(MAX);
-            if(gamepad1.left_stick_x < 0 && gamepad1.left_stick_y == 0) moveLeft(MAX);
+            else if(gamepad1.left_stick_x < 0 && gamepad1.left_stick_y == 0) moveLeft(MAX);
 
             // turning left and right
             if(gamepad1.left_trigger > 0) turnRight(MAX);
-            if(gamepad1.right_trigger < 0) turnLeft(MAX);
+            else if(gamepad1.right_trigger < 0) turnLeft(MAX);
 
             // diagonal
             if(gamepad1.left_stick_y > 0 && gamepad1.left_stick_x < 0) rightFrontDiagonal(MAX);
-            if(gamepad1.left_stick_y > 0 && gamepad1.left_stick_x > 0) leftFrontDiagonal(MAX);
-            if(gamepad1.left_stick_y < 0 && gamepad1.left_stick_x < 0) rightBackDiagonal(MAX);
-            if(gamepad1.left_stick_y < 0 && gamepad1.left_stick_x > 0) leftBackDiagonal(MAX);
+            else if(gamepad1.left_stick_y > 0 && gamepad1.left_stick_x > 0) leftFrontDiagonal(MAX);
+            else if(gamepad1.left_stick_y < 0 && gamepad1.left_stick_x < 0) rightBackDiagonal(MAX);
+            else if(gamepad1.left_stick_y < 0 && gamepad1.left_stick_x > 0) leftBackDiagonal(MAX);
 
             // stopping all the driving controls
             if(gamepad1.left_stick_y == 0 && gamepad1.left_stick_x == 0 && gamepad1.left_trigger == 0 && gamepad1.right_trigger == 0) driveStopAll();
+        
+            /** The Arm Controls **/
+            if(gamepad2.right_trigger > 0) extendArm(MAX);
+            else if(gamepad2.left_trigger > 0) retractArm(MAX);
+            
+            if(gamepad2.right_bumper) raiseHeight(MAX);
+            else if(gamepad2.left_bumper) lowerHeight(MAX);
+            
+            if(gamepad2.right_trigger == 0 && gamepad2.left_trigger == 0 && !gamepad2.right_bumper && !gamepad2.left_bumper){
+                extendArm(STP);
+                raiseHeight(STP);
+            }
+            
         }
     }
 
