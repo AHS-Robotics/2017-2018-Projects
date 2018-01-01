@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
-@TeleOp(name="Fredrick v0.5.1", group="Testing")
+@TeleOp(name="Fredrick v1.0.0", group="Testing")
 public class Fredrick extends LinearOpMode{
     private DcMotor frontLeft;
     private DcMotor backLeft;
@@ -281,11 +281,21 @@ public class Fredrick extends LinearOpMode{
                 heightRight.setPower(STP);
             }
 
-            // Forward on z axis
-            if(gamepad2.left_trigger > 0){
+            // Forward and back on z axis
+            if(gamepad2.left_trigger > 0) {
                 extendLeft.setPower(MAX);
-            }if(gamepad2.left_trigger == 0){
+            }if(gamepad2.right_trigger > 0){
+                extendLeft.setPower(-MAX);
+            }if(gamepad2.left_trigger == 0 && gamepad2.right_trigger == 0){
                 extendLeft.setPower(STP);
+            }
+
+            if(gamepad2.left_bumper){
+                extendRight.setPower(-MAX);
+            }if(gamepad2.right_bumper){
+                extendRight.setPower(MAX);
+            }if(!gamepad2.left_bumper && !gamepad2.right_bumper){
+                extendRight.setPower(STP);
             }
 
             idle();
