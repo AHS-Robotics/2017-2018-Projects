@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
-@TeleOp(name="Fredrick v0.4.2", group="Testing")
+@TeleOp(name="Fredrick v0.5.1", group="Testing")
 public class Fredrick extends LinearOpMode{
     private DcMotor frontLeft;
     private DcMotor backLeft;
@@ -226,6 +226,10 @@ public class Fredrick extends LinearOpMode{
         backLeft = setMotor("backLeft");
         frontRight = setMotor("frontRight");
         backRight = setMotor("backRight");
+        extendLeft = setMotor("extendLeft");
+        extendRight = setMotor("extendRight");
+        heightLeft = setMotor("heightLeft");
+        heightRight = setMotor("heightRight");
 
         frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -236,7 +240,10 @@ public class Fredrick extends LinearOpMode{
 
         while(opModeIsActive()){
             // debugging info
-            cprint("left stick y: " + gamepad1.left_stick_y + "\nleft stick x: " + gamepad1.left_stick_x + "\nleft trigger: " + gamepad1.left_trigger + "\nright trigger: " + gamepad1.right_trigger + "\nMAX: " + MAX);
+            cprint("left stick y: " + gamepad1.left_stick_y + "\nleft stick x: " + gamepad1.left_stick_x +
+                    "\nleft trigger: " + gamepad1.left_trigger +
+                    "\nright trigger: " + gamepad1.right_trigger +
+                    "\nMAX: " + MAX);
 
             /** The Driving Controls **/
             if(gamepad1.left_stick_y > 0) driveBack();
@@ -257,6 +264,30 @@ public class Fredrick extends LinearOpMode{
 
             /** Stopping all driving motors if there is no driving input **/
             if(gamepad1.left_stick_y == 0 && gamepad1.right_stick_x == 0 && gamepad1.left_trigger == 0 && gamepad1.right_trigger == 0) stopAllMotors();
+
+            /** Arm Controls **/
+
+            // up down on y axis
+            if(gamepad2.dpad_up){
+                heightLeft.setPower(-MAX);
+                heightRight.setPower(MAX);
+            }if(gamepad2.dpad_down){
+                heightLeft.setPower(MAX);
+                heightRight.setPower(-MAX);
+            }
+
+            if(!gamepad2.dpad_up && !gamepad2.dpad_down){
+                heightLeft.setPower(STP);
+                heightRight.setPower(STP);
+            }
+
+            // Forward on z axis
+            if(gamepad2.left_trigger > 0){
+                extendLeft.setPower(MAX);
+            }if(gamepad2.left_trigger == 0){
+                extendLeft.setPower(STP);
+            }
+
             idle();
 
         }
