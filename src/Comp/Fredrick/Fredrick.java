@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
-@TeleOp(name="Fredrick v1.0.0", group="Testing")
+@TeleOp(name="Fredrick v2.1.3", group="Testing")
 public class Fredrick extends LinearOpMode{
     private DcMotor frontLeft;
     private DcMotor backLeft;
@@ -16,9 +16,13 @@ public class Fredrick extends LinearOpMode{
     private DcMotor extendRight;
     private DcMotor heightLeft;
     private DcMotor heightRight;
-    private final double MAX = 1.0/4.0;
-    private final double MIN = -1.0;
-    private final double STP = 0;
+    private double multiplier;
+    private double globalPower;
+    private boolean holdDownMultiChange;
+    private final double MAX = 1.0; // the max speed we want robot to go
+    private final double MIN = -1.0; // min speed robot can go
+    private final double STP = 0; // stopping position
+    private final double INC = 0.1; // how much to change the multiplier by
 
     /**
      * pauses the thread for seconds passed in
@@ -137,7 +141,6 @@ public class Fredrick extends LinearOpMode{
      */
     public void extendArm(double pow){
         extendLeft.setPower(pow);
-
     }
 
     /**
@@ -205,20 +208,47 @@ public class Fredrick extends LinearOpMode{
      * set wheels up to drive max speed forward
      */
     public void driveForward(){
-        frontLeft.setPower(MAX);
-        frontRight.setPower(MAX);
-        backLeft.setPower(MAX);
-        backRight.setPower(MAX);
+        frontLeft.setPower(globalPower);
+        frontRight.setPower(globalPower);
+        backLeft.setPower(globalPower);
+        backRight.setPower(globalPower);
+    }
+
+    public void driveForward(double pow){
+        frontLeft.setPower(pow);
+        frontRight.setPower(pow);
+        backLeft.setPower(pow);
+        backRight.setPower(pow);
     }
 
     /**
      * set wheels up to drive max speed backwards
      */
     public void driveBack(){
-        frontLeft.setPower(-MAX);
-        frontRight.setPower(-MAX);
-        backLeft.setPower(-MAX);
-        backRight.setPower(-MAX);
+        frontLeft.setPower(-globalPower);
+        frontRight.setPower(-globalPower);
+        backLeft.setPower(-globalPower);
+        backRight.setPower(-globalPower);
+    }
+
+    public void driveBack(double pow){
+        frontLeft.setPower(-pow);
+        frontRight.setPower(-pow);
+        backLeft.setPower(-pow);
+        backRight.setPower(-pow);
+    }
+
+    public void decSpeed(){
+        if(!holdDownMultiChange){
+            if(multiplier > 0) multiplier -= INC;
+            holdDownMultiChange = true;
+        }
+    }
+    public void incSpeed(){
+        if(!holdDownMultiChange){
+            if(multiplier < 1) multiplier += INC;
+            holdDownMultiChange = true;
+        }
     }
 
     public void runOpMode() {
@@ -234,6 +264,9 @@ public class Fredrick extends LinearOpMode{
         frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
 
+        multiplier = 1.0;
+        holdDownMultiChange = false;
+
         cprint("Ready to start!");
 
         waitForStart();
@@ -243,37 +276,46 @@ public class Fredrick extends LinearOpMode{
             cprint("left stick y: " + gamepad1.left_stick_y + "\nleft stick x: " + gamepad1.left_stick_x +
                     "\nleft trigger: " + gamepad1.left_trigger +
                     "\nright trigger: " + gamepad1.right_trigger +
-                    "\nMAX: " + MAX);
+                    "\nMAX: " + MAX +
+                    "\nMultiplier: " + multiplier +
+                    "\nholdDownMultiChange: " + holdDownMultiChange);
+            globalPower = MAX * multiplier;
+
+            if(gamepad1.dpad_left) decSpeed();
+            if(gamepad1.dpad_right) incSpeed();
+            if(!gamepad1.dpad_left && !gamepad1.dpad_right) holdDownMultiChange = false;
 
             /** The Driving Controls **/
             if(gamepad1.left_stick_y > 0) driveBack();
             if(gamepad1.left_stick_y < 0) driveForward();
-            if(gamepad1.left_stick_x > 0) moveLeft(-MAX);
-            if(gamepad1.left_stick_x < 0) moveRight(-MAX);
-            if(gamepad1.left_stick_y > 0.85 && gamepad1.left_stick_x > 0.85) leftFrontDiagonal(-MAX);
-            if(gamepad1.left_stick_y > 0.85 && gamepad1.right_stick_x < -0.85) rightFrontDiagonal(-MAX);
-            if(gamepad1.left_stick_y < -0.85 && gamepad1.right_stick_x > 0.85) leftBackDiagonal(-MAX);
-            if(gamepad1.left_stick_y < -0.85 && gamepad1.right_stick_x < -0.85) rightBackDiagonal(-MAX);
+            if(gamepad1.left_stick_x > 0) moveLeft(-globalPower);
+            if(gamepad1.left_stick_x < 0) moveRight(-globalPower);
+            if(gamepad1.left_stick_y > 0.85 && gamepad1.left_stick_x > 0.85) leftFrontDiagonal(-globalPower);
+            if(gamepad1.left_stick_y > 0.85 && gamepad1.right_stick_x < -0.85) rightFrontDiagonal(-globalPower);
+            if(gamepad1.left_stick_y < -0.85 && gamepad1.right_stick_x > 0.85) leftBackDiagonal(-globalPower);
+            if(gamepad1.left_stick_y < -0.85 && gamepad1.right_stick_x < -0.85) rightBackDiagonal(-globalPower);
 
             /** Turning on Axis **/
             if(gamepad1.right_trigger > 0){
-                turnRight(MAX * gamepad1.right_trigger);
+                turnRight(globalPower * gamepad1.right_trigger);
             }if(gamepad1.left_trigger > 0){
-                turnLeft(MAX * gamepad1.left_trigger);
+                turnLeft(globalPower * gamepad1.left_trigger);
             }
 
             /** Stopping all driving motors if there is no driving input **/
-            if(gamepad1.left_stick_y == 0 && gamepad1.right_stick_x == 0 && gamepad1.left_trigger == 0 && gamepad1.right_trigger == 0) stopAllMotors();
+            if(gamepad1.left_stick_y == 0 && gamepad1.right_stick_x == 0 && gamepad1.left_trigger == 0 && gamepad1.right_trigger == 0){
+                stopAllMotors();
+            }
 
             /** Arm Controls **/
 
             // up down on y axis
             if(gamepad2.dpad_up){
-                heightLeft.setPower(-MAX);
-                heightRight.setPower(MAX);
+                heightLeft.setPower(-globalPower);
+                heightRight.setPower(globalPower);
             }if(gamepad2.dpad_down){
-                heightLeft.setPower(MAX);
-                heightRight.setPower(-MAX);
+                heightLeft.setPower(globalPower);
+                heightRight.setPower(-globalPower);
             }
 
             if(!gamepad2.dpad_up && !gamepad2.dpad_down){
@@ -283,17 +325,17 @@ public class Fredrick extends LinearOpMode{
 
             // Forward and back on z axis
             if(gamepad2.left_trigger > 0) {
-                extendLeft.setPower(MAX);
+                extendLeft.setPower(globalPower);
             }if(gamepad2.right_trigger > 0){
-                extendLeft.setPower(-MAX);
+                extendLeft.setPower(-globalPower);
             }if(gamepad2.left_trigger == 0 && gamepad2.right_trigger == 0){
                 extendLeft.setPower(STP);
             }
 
             if(gamepad2.left_bumper){
-                extendRight.setPower(-MAX);
+                extendRight.setPower(-globalPower);
             }if(gamepad2.right_bumper){
-                extendRight.setPower(MAX);
+                extendRight.setPower(globalPower);
             }if(!gamepad2.left_bumper && !gamepad2.right_bumper){
                 extendRight.setPower(STP);
             }
