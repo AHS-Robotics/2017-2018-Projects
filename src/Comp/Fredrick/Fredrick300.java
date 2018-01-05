@@ -1,13 +1,14 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
-@TeleOp(name="Fredrick v3.0.0", group="Testing")
+@TeleOp(name="Fredrick v3.0.0", group="Final")
 public class Fredrick extends LinearOpMode{
     private DcMotor frontLeft;                  // the next for are all controlling driving wheels
     private DcMotor backLeft;
@@ -17,6 +18,7 @@ public class Fredrick extends LinearOpMode{
     private DcMotor extendRight;                // extend arm on the right side
     private DcMotor heightLeft;                 // motor for the height on the left side
     private DcMotor heightRight;                // motor for the height on the right side
+    private Servo claw;                          // Claw to grab the blocks
     private double multiplier;                  // multiplier for drive
     private double multiplierTwo;               // multiplier for arm
     private double globalPower;                 // power that most motors will have, set in runOpMode
@@ -293,6 +295,8 @@ public class Fredrick extends LinearOpMode{
         frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
 
+        claw = hardwareMap.servo.get("claw");
+
         multiplier = 1.0;
         multiplierTwo = 1.0;
         holdDownMultiChange = false;
@@ -372,6 +376,13 @@ public class Fredrick extends LinearOpMode{
                 extendRight.setPower(armPower);
             }if(!gamepad2.left_bumper && !gamepad2.right_bumper){
                 extendRight.setPower(STP);
+            }
+
+            // Claws
+            if(gamepad2.a){
+                claw.setPosition(0);
+            }if(gamepad2.b){
+                claw.setPosition(1);
             }
 
             idle();
