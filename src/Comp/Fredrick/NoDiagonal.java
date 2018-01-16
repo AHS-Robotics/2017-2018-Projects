@@ -166,6 +166,8 @@ public class NoDiagonal{
           }if(gamepad1.left_trigger > 0){
                 turnLeft(0.5);
           }
+          
+          idle();
       }
     
   }
