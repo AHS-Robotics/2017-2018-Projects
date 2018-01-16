@@ -136,6 +136,8 @@ public class NoDiagonal{
 
         frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+      
+        waitForStart();
 
         while(opModeIsActive()){
           if(gamepad1.start) pause = !pause;
