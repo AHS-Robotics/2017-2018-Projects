@@ -1,28 +1,31 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
-@TeleOp(name="Fredrick v2.1.3", group="Testing")
+@TeleOp(name="Fredrick v4.0.0", group="Final")
 public class Fredrick extends LinearOpMode{
-    private DcMotor frontLeft;
+    private DcMotor frontLeft;                  // the next for are all controlling driving wheels
     private DcMotor backLeft;
     private DcMotor frontRight;
     private DcMotor backRight;
-    private DcMotor extendLeft;
-    private DcMotor extendRight;
-    private DcMotor heightLeft;
-    private DcMotor heightRight;
-    private double multiplier;
-    private double globalPower;
-    private boolean holdDownMultiChange;
-    private final double MAX = 1.0; // the max speed we want robot to go
-    private final double MIN = -1.0; // min speed robot can go
-    private final double STP = 0; // stopping position
-    private final double INC = 0.1; // how much to change the multiplier by
+    private DcMotor heightLeft;                 // motor for the height on the left side
+    private DcMotor heightRight;                // motor for the height on the right side
+    private DcMotor clamp;                      // motor to help pick up the glphys
+    private double multiplier;                  // multiplier for drive
+    private double multiplierTwo;               // multiplier for arm
+    private double globalPower;                 // power that most motors will have, set in runOpMode
+    private boolean holdDownMultiChange;        // put in to prevent multiplier from rapidly changing
+    private boolean isAuto = false;             // will run autonomous if true
+    private final double MAX = 1.0;             // the max speed we want robot to go
+    private final double MIN = -1.0;            // min speed robot can go
+    private final double STP = 0;               // stopping position
+    private final double INC = 0.1;             // how much to change the multiplier by
 
     /**
      * pauses the thread for seconds passed in
@@ -56,9 +59,9 @@ public class Fredrick extends LinearOpMode{
 
 
     /**
-    * sets motors to move the robot left
+     * sets motors to move the robot left
      * @param pow the power level
-    * */
+     * */
     public void moveLeft(double pow){
         frontLeft.setPower(-pow);
         backLeft.setPower(pow);
@@ -99,56 +102,6 @@ public class Fredrick extends LinearOpMode{
         backLeft.setPower(-pow);
         backRight.setPower(pow);
         frontRight.setPower(pow);
-    }
-
-    /**
-     * moves the robot in a left front diagonal direction
-     * @param pow the power we set the motor to
-     */
-    public void leftFrontDiagonal(double pow){
-        backLeft.setPower(pow);
-        frontRight.setPower(pow);
-    }
-
-    /**
-     * move the robot in a right front diagonal direction
-     * @param pow the power we set the motor to
-     */
-    public void rightFrontDiagonal(double pow){
-        frontLeft.setPower(pow);
-        backRight.setPower(pow);
-    }
-
-    /**
-     * move the robot in a left back diagonal direction
-     * @param pow the power we set the motor to
-     */
-    public void leftBackDiagonal(double pow){
-        rightFrontDiagonal(-pow);
-    }
-
-    /**
-     * move the robot in a right back diagonal direction
-     * @param pow the power we set the motor to
-     */
-    public void rightBackDiagonal(double pow){
-        leftFrontDiagonal(-pow);
-    }
-
-    /**
-     * extending the arm on the z axis
-     * @param pow the power we set the motor to
-     */
-    public void extendArm(double pow){
-        extendLeft.setPower(pow);
-    }
-
-    /**
-     * retracting the arm on the z axis
-     * @param pow the power we set the motor to
-     */
-    public void retractArm(double pow){
-        extendArm(-pow);
     }
 
     /**
@@ -231,6 +184,10 @@ public class Fredrick extends LinearOpMode{
         backRight.setPower(-globalPower);
     }
 
+    /**
+     * set wheels up to drive power in argument backwards
+     * @param pow the power we want to set the robot to
+     */
     public void driveBack(double pow){
         frontLeft.setPower(-pow);
         frontRight.setPower(-pow);
@@ -238,33 +195,55 @@ public class Fredrick extends LinearOpMode{
         backRight.setPower(-pow);
     }
 
-    public void decSpeed(){
+    /**
+     * decreases a multiplier speed
+     * @param tempMult multiplier we want to decrease
+     * @return the new value of the multiplier
+     */
+    public double decSpeed(double tempMult){
         if(!holdDownMultiChange){
-            if(multiplier > 0) multiplier -= INC;
+            if(tempMult > 0) tempMult -= INC;
             holdDownMultiChange = true;
         }
-    }
-    public void incSpeed(){
-        if(!holdDownMultiChange){
-            if(multiplier < 1) multiplier += INC;
-            holdDownMultiChange = true;
-        }
+
+        return tempMult;
     }
 
+    /**
+     * increases a multiplier speed
+     * @param tempMult multiplier we want to increase
+     * @return the new value of the multiplier
+     */
+    public double incSpeed(double tempMult){
+        if(!holdDownMultiChange){
+            if(tempMult < 1) tempMult += INC;
+            holdDownMultiChange = true;
+        }
+
+        return tempMult;
+    }
+
+    /**
+     * main method of the TeleOp
+     */
     public void runOpMode() {
+        if(isAuto){
+            runAutoMode();
+            return;
+        }
         frontLeft = setMotor("frontLeft");
         backLeft = setMotor("backLeft");
         frontRight = setMotor("frontRight");
         backRight = setMotor("backRight");
-        extendLeft = setMotor("extendLeft");
-        extendRight = setMotor("extendRight");
         heightLeft = setMotor("heightLeft");
         heightRight = setMotor("heightRight");
+        clamp = setMotor("clamp");
 
         frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
 
         multiplier = 1.0;
+        multiplierTwo = 1.0;
         holdDownMultiChange = false;
 
         cprint("Ready to start!");
@@ -278,22 +257,21 @@ public class Fredrick extends LinearOpMode{
                     "\nright trigger: " + gamepad1.right_trigger +
                     "\nMAX: " + MAX +
                     "\nMultiplier: " + multiplier +
+                    "\nMultiplier 2: " + multiplierTwo +
                     "\nholdDownMultiChange: " + holdDownMultiChange);
             globalPower = MAX * multiplier;
 
-            if(gamepad1.dpad_left) decSpeed();
-            if(gamepad1.dpad_right) incSpeed();
-            if(!gamepad1.dpad_left && !gamepad1.dpad_right) holdDownMultiChange = false;
+            if(gamepad1.dpad_left) multiplier = decSpeed(multiplier);
+            if(gamepad1.dpad_right) multiplier = incSpeed(multiplier);
+            if(gamepad2.dpad_left) multiplierTwo = decSpeed(multiplierTwo);
+            if(gamepad2.dpad_right) multiplierTwo = incSpeed(multiplierTwo);
+            if(!gamepad1.dpad_left && !gamepad1.dpad_right && !gamepad2.dpad_left && !gamepad2.dpad_right) holdDownMultiChange = false;
 
             /** The Driving Controls **/
-            if(gamepad1.left_stick_y > 0) driveBack();
-            if(gamepad1.left_stick_y < 0) driveForward();
-            if(gamepad1.left_stick_x > 0) moveLeft(-globalPower);
-            if(gamepad1.left_stick_x < 0) moveRight(-globalPower);
-            if(gamepad1.left_stick_y > 0.85 && gamepad1.left_stick_x > 0.85) leftFrontDiagonal(-globalPower);
-            if(gamepad1.left_stick_y > 0.85 && gamepad1.right_stick_x < -0.85) rightFrontDiagonal(-globalPower);
-            if(gamepad1.left_stick_y < -0.85 && gamepad1.right_stick_x > 0.85) leftBackDiagonal(-globalPower);
-            if(gamepad1.left_stick_y < -0.85 && gamepad1.right_stick_x < -0.85) rightBackDiagonal(-globalPower);
+            if(gamepad1.left_stick_y > 0 && gamepad1.left_stick_x == 0) driveBack();
+            if(gamepad1.left_stick_y < 0 && gamepad1.left_stick_x == 0) driveForward();
+            if(gamepad1.left_stick_x > 0 && gamepad1.left_stick_y == 0) moveLeft(-globalPower);
+            if(gamepad1.left_stick_x < 0 && gamepad1.left_stick_y == 0) moveRight(-globalPower);
 
             /** Turning on Axis **/
             if(gamepad1.right_trigger > 0){
@@ -310,34 +288,27 @@ public class Fredrick extends LinearOpMode{
             /** Arm Controls **/
 
             // up down on y axis
+            double armPower = MAX * multiplierTwo;
             if(gamepad2.dpad_up){
-                heightLeft.setPower(-globalPower);
-                heightRight.setPower(globalPower);
+                heightLeft.setPower(-armPower);
+                heightRight.setPower(armPower);
             }if(gamepad2.dpad_down){
-                heightLeft.setPower(globalPower);
-                heightRight.setPower(-globalPower);
+                heightLeft.setPower(armPower);
+                heightRight.setPower(-armPower);
             }
 
             if(!gamepad2.dpad_up && !gamepad2.dpad_down){
                 heightLeft.setPower(STP);
                 heightRight.setPower(STP);
             }
-
-            // Forward and back on z axis
-            if(gamepad2.left_trigger > 0) {
-                extendLeft.setPower(globalPower);
+            
+            // the clamp
+            if(gamepad2.left_trigger > 0){
+                clamp.setPower(-0.25);
             }if(gamepad2.right_trigger > 0){
-                extendLeft.setPower(-globalPower);
+                clamp.setPower(0.25);
             }if(gamepad2.left_trigger == 0 && gamepad2.right_trigger == 0){
-                extendLeft.setPower(STP);
-            }
-
-            if(gamepad2.left_bumper){
-                extendRight.setPower(-globalPower);
-            }if(gamepad2.right_bumper){
-                extendRight.setPower(globalPower);
-            }if(!gamepad2.left_bumper && !gamepad2.right_bumper){
-                extendRight.setPower(STP);
+                clamp.setPower(0);
             }
 
             idle();
@@ -345,4 +316,10 @@ public class Fredrick extends LinearOpMode{
         }
     }
 
+    /**
+     * will run if auto if true
+     */
+    public void runAutoMode(){
+
+    }
 }
