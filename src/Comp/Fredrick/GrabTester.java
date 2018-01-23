@@ -23,12 +23,13 @@ public class GrabTester extends LinearOpMode{
         rightBottom = hardwareMap.servo.get("rightBottom");
 
         leftTop.setDirection(Servo.Direction.REVERSE);
-        rightTop.setDirection(Servo.Direction.REVERSE);
+        rightTop.setDirection(Servo.Direction.FORWARD);
+        rightBottom.setDirection(Servo.Direction.REVERSE);
 
         waitForStart();
 
         while(opModeIsActive()){
-            if(gamepad1.a) return;
+            if(gamepad1.y) return;
 
             if(gamepad1.a){
                 leftTop.setPosition(1.0);
