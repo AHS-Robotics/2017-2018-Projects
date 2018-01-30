@@ -161,10 +161,10 @@ public class Fredrick extends LinearOpMode{
      * set wheels up to drive max speed forward
      */
     public void driveForward(){
-        frontLeft.setPower(globalPower);
-        frontRight.setPower(globalPower);
-        backLeft.setPower(globalPower);
-        backRight.setPower(globalPower);
+        frontLeft.setPower(-globalPower);
+        frontRight.setPower(-globalPower);
+        backLeft.setPower(-globalPower);
+        backRight.setPower(-globalPower);
     }
 
     public void driveForward(double pow){
@@ -178,10 +178,10 @@ public class Fredrick extends LinearOpMode{
      * set wheels up to drive max speed backwards
      */
     public void driveBack(){
-        frontLeft.setPower(-globalPower);
-        frontRight.setPower(-globalPower);
-        backLeft.setPower(-globalPower);
-        backRight.setPower(-globalPower);
+        frontLeft.setPower(globalPower);
+        frontRight.setPower(globalPower);
+        backLeft.setPower(globalPower);
+        backRight.setPower(globalPower);
     }
 
     /**
