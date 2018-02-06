@@ -268,8 +268,8 @@ public class Fredrick extends LinearOpMode{
             /** The Driving Controls **/
             if(gamepad1.right_stick_y > 0 && gamepad1.right_stick_x == 0) driveBack();
             if(gamepad1.right_stick_y < 0 && gamepad1.right_stick_x == 0) driveForward();
-            if(gamepad1.right_stick_x > 0 && gamepad1.right_stick_y == 0) moveLeft(-MAX);
-            if(gamepad1.right_stick_x < 0 && gamepad1.right_stick_y == 0) moveRight(-MAX);
+            if(gamepad1.right_stick_x > 0 && gamepad1.right_stick_y == 0) moveLeft(-MAX * multiplier);
+            if(gamepad1.right_stick_x < 0 && gamepad1.right_stick_y == 0) moveRight(-MAX * multiplier);
 
             /** Turning on Axis **/
             if(gamepad1.right_bumper){
@@ -299,7 +299,7 @@ public class Fredrick extends LinearOpMode{
                 heightLeft.setPower(STP);
                 heightRight.setPower(STP);
             }
-            
+
             // the clamp
             if(gamepad1.left_trigger > 0){
                 clamp.setPower(-0.25);
