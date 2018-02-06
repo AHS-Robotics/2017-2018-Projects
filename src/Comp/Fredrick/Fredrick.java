@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
-@TeleOp(name="Fredrick v4.0.0", group="Final")
+@TeleOp(name="Fredrick v4.0.1", group="Final")
 public class Fredrick extends LinearOpMode{
     private DcMotor frontLeft;                  // the next for are all controlling driving wheels
     private DcMotor backLeft;
@@ -268,8 +268,8 @@ public class Fredrick extends LinearOpMode{
             /** The Driving Controls **/
             if(gamepad1.right_stick_y > 0 && gamepad1.right_stick_x == 0) driveBack();
             if(gamepad1.right_stick_y < 0 && gamepad1.right_stick_x == 0) driveForward();
-            if(gamepad1.right_stick_x > 0 && gamepad1.right_stick_y == 0) moveLeft(-MAX * multiplier);
-            if(gamepad1.right_stick_x < 0 && gamepad1.right_stick_y == 0) moveRight(-MAX * multiplier);
+            if(gamepad1.right_stick_x > 0 && gamepad1.right_stick_y == 0) moveLeft(-MAX);
+            if(gamepad1.right_stick_x < 0 && gamepad1.right_stick_y == 0) moveRight(-MAX);
 
             /** Turning on Axis **/
             if(gamepad1.right_bumper){
