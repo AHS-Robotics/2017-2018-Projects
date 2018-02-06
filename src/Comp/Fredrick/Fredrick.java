@@ -263,20 +263,18 @@ public class Fredrick extends LinearOpMode{
 
             if(gamepad1.dpad_left) multiplier = decSpeed(multiplier);
             if(gamepad1.dpad_right) multiplier = incSpeed(multiplier);
-            if(gamepad2.dpad_left) multiplierTwo = decSpeed(multiplierTwo);
-            if(gamepad2.dpad_right) multiplierTwo = incSpeed(multiplierTwo);
-            if(!gamepad1.dpad_left && !gamepad1.dpad_right && !gamepad2.dpad_left && !gamepad2.dpad_right) holdDownMultiChange = false;
+            if(!gamepad1.dpad_left && !gamepad1.dpad_right) holdDownMultiChange = false;
 
             /** The Driving Controls **/
-            if(gamepad1.left_stick_y > 0 && gamepad1.left_stick_x == 0) driveBack();
-            if(gamepad1.left_stick_y < 0 && gamepad1.left_stick_x == 0) driveForward();
-            if(gamepad1.left_stick_x > 0 && gamepad1.left_stick_y == 0) moveLeft(-globalPower);
-            if(gamepad1.left_stick_x < 0 && gamepad1.left_stick_y == 0) moveRight(-globalPower);
+            if(gamepad1.right_stick_y > 0 && gamepad1.right_stick_x == 0) driveBack();
+            if(gamepad1.right_stick_y < 0 && gamepad1.right_stick_x == 0) driveForward();
+            if(gamepad1.right_stick_x > 0 && gamepad1.right_stick_y == 0) moveLeft(-MAX);
+            if(gamepad1.right_stick_x < 0 && gamepad1.right_stick_y == 0) moveRight(-MAX);
 
             /** Turning on Axis **/
-            if(gamepad1.right_trigger > 0){
+            if(gamepad1.right_bumper){
                 turnRight(globalPower * gamepad1.right_trigger);
-            }if(gamepad1.left_trigger > 0){
+            }if(gamepad1.left_bumper){
                 turnLeft(globalPower * gamepad1.left_trigger);
             }
 
@@ -288,26 +286,26 @@ public class Fredrick extends LinearOpMode{
             /** Arm Controls **/
 
             // up down on y axis
-            double armPower = MAX * multiplierTwo;
-            if(gamepad2.dpad_up){
+            double armPower = MAX * multiplier;
+            if(gamepad1.dpad_up){
                 heightLeft.setPower(-armPower);
                 heightRight.setPower(armPower);
-            }if(gamepad2.dpad_down){
+            }if(gamepad1.dpad_down){
                 heightLeft.setPower(armPower);
                 heightRight.setPower(-armPower);
             }
 
-            if(!gamepad2.dpad_up && !gamepad2.dpad_down){
+            if(!gamepad1.dpad_up && !gamepad1.dpad_down){
                 heightLeft.setPower(STP);
                 heightRight.setPower(STP);
             }
             
             // the clamp
-            if(gamepad2.left_trigger > 0){
+            if(gamepad1.left_trigger > 0){
                 clamp.setPower(-0.25);
-            }if(gamepad2.right_trigger > 0){
+            }if(gamepad1.right_trigger > 0){
                 clamp.setPower(0.25);
-            }if(gamepad2.left_trigger == 0 && gamepad2.right_trigger == 0){
+            }if(gamepad1.left_trigger == 0 && gamepad1.right_trigger == 0){
                 clamp.setPower(0);
             }
 
