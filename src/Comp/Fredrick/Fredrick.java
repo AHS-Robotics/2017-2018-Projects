@@ -279,7 +279,7 @@ public class Fredrick extends LinearOpMode{
             }
 
             /** Stopping all driving motors if there is no driving input **/
-            if(gamepad1.left_stick_y == 0 && gamepad1.right_stick_x == 0 && !gamepad1.left_bumper && !gamepad1.right_bumper){
+            if(gamepad1.right_stick_y == 0 && gamepad1.right_stick_x == 0 && !gamepad1.left_bumper && !gamepad1.right_bumper){
                 stopAllMotors();
             }
 
