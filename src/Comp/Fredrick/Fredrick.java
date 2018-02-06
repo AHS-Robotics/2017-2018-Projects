@@ -273,13 +273,13 @@ public class Fredrick extends LinearOpMode{
 
             /** Turning on Axis **/
             if(gamepad1.right_bumper){
-                turnRight(globalPower * gamepad1.right_trigger);
+                turnRight(globalPower);
             }if(gamepad1.left_bumper){
-                turnLeft(globalPower * gamepad1.left_trigger);
+                turnLeft(globalPower);
             }
 
             /** Stopping all driving motors if there is no driving input **/
-            if(gamepad1.left_stick_y == 0 && gamepad1.right_stick_x == 0 && gamepad1.left_trigger == 0 && gamepad1.right_trigger == 0){
+            if(gamepad1.left_stick_y == 0 && gamepad1.right_stick_x == 0 && !gamepad1.left_bumper && !gamepad1.right_bumper){
                 stopAllMotors();
             }
 
