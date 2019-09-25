@@ -3,12 +3,13 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
-@TeleOp(name="Fredrick v4.0.1", group="Final")
+@TeleOp(name="Fredrick v4.0.0", group="Final")
 public class Fredrick extends LinearOpMode{
     private DcMotor frontLeft;                  // the next for are all controlling driving wheels
     private DcMotor backLeft;
@@ -16,7 +17,11 @@ public class Fredrick extends LinearOpMode{
     private DcMotor backRight;
     private DcMotor heightLeft;                 // motor for the height on the left side
     private DcMotor heightRight;                // motor for the height on the right side
-    private DcMotor clamp;                      // motor to help pick up the glphys
+    private Servo leftTop;                      // the next four lines are servos to control the grabbing mechanism
+    private Servo leftBottom;
+    private Servo rightTop;
+    private Servo rightBottom;
+    private double servoPosition;               // holds 0.0 to 1.0 and allows for servos to accelerate
     private double multiplier;                  // multiplier for drive
     private double multiplierTwo;               // multiplier for arm
     private double globalPower;                 // power that most motors will have, set in runOpMode
@@ -26,6 +31,7 @@ public class Fredrick extends LinearOpMode{
     private final double MIN = -1.0;            // min speed robot can go
     private final double STP = 0;               // stopping position
     private final double INC = 0.1;             // how much to change the multiplier by
+    private final double SERVO_INC = 0.001      // Acceleration of servo position
 
     /**
      * pauses the thread for seconds passed in
@@ -38,7 +44,16 @@ public class Fredrick extends LinearOpMode{
             e.printStackTrace();
         }
     }
-
+    
+  /**
+  * returns servo with reference to hardware map
+  * @param name string with name of servo
+  * @return new Servo with refernce to hardware map
+  */
+    public Servo setServo(String name){
+      return hardwareMap.servo.get(name);
+    }
+  
     /**
      * returns motor with reference to hardware map
      * @param name string with the name of the motor
@@ -142,14 +157,6 @@ public class Fredrick extends LinearOpMode{
     }
 
     /**
-     * stopping all motors in the array local to the method add all motors you want stopped into the array when needed
-     */
-    public void stopAllMotors(){
-        DcMotor motors[] = {frontLeft, backLeft, frontRight, backRight}; //, extendLeft, extendRight, heightLeft, heightRight};
-        for(DcMotor motor : motors) setPower(motor, STP);
-    }
-
-    /**
      * only stops the motors that involve driving
      */
     public void driveStopAll(){
@@ -237,14 +244,20 @@ public class Fredrick extends LinearOpMode{
         backRight = setMotor("backRight");
         heightLeft = setMotor("heightLeft");
         heightRight = setMotor("heightRight");
-        clamp = setMotor("clamp");
+        leftTop = setServo("leftTop");
+        leftBottom = setServo("leftBottom");
+        rightTop = setServo("rightTop");
+        rightBottom = setServo("rightBottom");
 
         frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftTop.setDirection(Servo.Direction.REVERSE);
+        rightBottom.setDirection(Servo.Direction.REVERSE);
 
         multiplier = 1.0;
         multiplierTwo = 1.0;
         holdDownMultiChange = false;
+        servoPosition = 0;
 
         cprint("Ready to start!");
 
@@ -257,7 +270,7 @@ public class Fredrick extends LinearOpMode{
                     "\nright trigger: " + gamepad1.right_trigger +
                     "\nMAX: " + MAX +
                     "\nMultiplier: " + multiplier +
-                    "\nMultiplier 2: " + multiplierTwo +
+                    "\nservoPosition: " + servoPosition
                     "\nholdDownMultiChange: " + holdDownMultiChange);
             globalPower = MAX * multiplier;
 
@@ -272,15 +285,15 @@ public class Fredrick extends LinearOpMode{
             if(gamepad1.right_stick_x < 0 && gamepad1.right_stick_y == 0) moveRight(-MAX);
 
             /** Turning on Axis **/
-            if(gamepad1.right_bumper){
-                turnRight(globalPower);
-            }if(gamepad1.left_bumper){
-                turnLeft(globalPower);
+            if(gamepad1.right_trgger > 0){
+                turnRight(globalPower * gamepad1.right_trigger);
+            }if(gamepad1.left_trigger > 0){
+                turnLeft(globalPower * gamepad1.left_trigger);
             }
 
             /** Stopping all driving motors if there is no driving input **/
-            if(gamepad1.right_stick_y == 0 && gamepad1.right_stick_x == 0 && !gamepad1.left_bumper && !gamepad1.right_bumper){
-                stopAllMotors();
+            if(gamepad1.right_stick_y == 0 && gamepad1.right_stick_x == 0 && gamepad1.left_trigger == 0 && gamepad1.right_trigger == 0){
+                driveStopAll();
             }
 
             /** Arm Controls **/
@@ -299,15 +312,28 @@ public class Fredrick extends LinearOpMode{
                 heightLeft.setPower(STP);
                 heightRight.setPower(STP);
             }
-
-            // the clamp
-            if(gamepad1.left_trigger > 0){
-                clamp.setPower(-0.25);
-            }if(gamepad1.right_trigger > 0){
-                clamp.setPower(0.25);
-            }if(gamepad1.left_trigger == 0 && gamepad1.right_trigger == 0){
-                clamp.setPower(0);
+          
+            try{
+              // controlling grabbing mechanism
+              if(gamepad1.left_bumper && servoPosition > 0){
+                servoPosition -= SERVO_INC;
+                Thread.sleep(250);
+              }
+              
+              if(gamepad1.right_bumper && servoPosition < 1){
+                servoPosition += SERVO_INC;
+                Thread.sleep(250);
+              } 
+              
+            catch(InterruptedException e){
+              e.printStackTrace();
             }
+              
+            leftTop.setPosition(servoPosition);
+            leftBottom.setPosition(servoPosition);
+            rightTop.setPosition(servoPosition);
+            rightBottom.setPosition(servoPosition);
+            
 
             idle();
 
